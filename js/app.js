@@ -1,6 +1,12 @@
 const q = (selector, context = document) => context.querySelector(selector);
 const qa = (selector, context = document) => [...context.querySelectorAll(selector)];
 
+qa('img[src="assets/images/student-reading.svg"]').forEach((image) => {
+  image.src = "assets/images/student-reading.png";
+  image.style.transform = "scale(.9)";
+  image.style.transformOrigin = "bottom center";
+});
+
 let favicon = q('link[rel="icon"]');
 if (!favicon) {
   favicon = document.createElement("link");
@@ -19,6 +25,7 @@ const menu = q(".menu-toggle");
 const nav = q(".main-nav");
 menu?.addEventListener("click", () => nav.classList.toggle("open"));
 
+q(".teacher-link")?.remove();
 q("[data-open-teacher]")?.addEventListener("click", () => q("#teacherModal").classList.add("open"));
 qa("[data-close-modal]").forEach((button) => {
   button.onclick = () => q("#teacherModal").classList.remove("open");
@@ -104,6 +111,175 @@ q("[data-reflect]")?.addEventListener("submit", (event) => {
   toast("Reflection saved.");
 });
 
+if (currentPage === "vocabulary.html") {
+  const wordLab = q(".word-game")?.closest(".activity");
+  if (wordLab) {
+    wordLab.innerHTML = `
+      <h3>Build Your Own Word Detective Challenge</h3>
+      <p class="lead" style="max-width:820px">
+        Enter the 5 words your student does not recognize. In the other column,
+        write a clear description for each word. Then let your student match every
+        word to its correct description.
+      </p>
+      <a class="btn btn-primary" href="word-detective.html">Start →</a>
+    `;
+  }
+
+  const contextLab = q("[data-check-answer]")?.closest(".activity");
+  if (contextLab) {
+    contextLab.innerHTML = `
+      <h3>Build Your Own Context Clue Challenge</h3>
+      <p class="lead" style="max-width:820px">
+        Write a sentence and highlight the vocabulary word you want to practice.
+        Then provide three answer choices and identify the correct meaning.
+      </p>
+      <a class="btn btn-primary" href="context-clue.html">Start →</a>
+    `;
+  }
+}
+
+if (currentPage === "index.html") {
+  const homeTitle = q(".hero-copy h1");
+  if (homeTitle && !q(".beyond-test", homeTitle.parentElement)) {
+    const labelStyles = document.createElement("style");
+    labelStyles.textContent = `
+      .beyond-test {
+        width: fit-content;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 4px 0 22px 8px;
+        padding: 8px 18px 9px;
+        background: var(--pink);
+        color: #fff;
+        font-family: "Baloo 2", sans-serif;
+        font-size: clamp(1.15rem, 2vw, 1.55rem);
+        font-weight: 800;
+        line-height: 1;
+        transform: rotate(-2deg);
+        clip-path: polygon(5% 4%, 95% 0, 100% 86%, 7% 100%, 0 18%);
+        box-shadow: 0 8px 0 rgba(239, 95, 145, .16);
+      }
+      .beyond-test-heart {
+        font-family: Arial, sans-serif;
+        font-size: 1.5em;
+        line-height: .7;
+      }
+      @media (max-width: 900px) {
+        .beyond-test { margin-inline: auto; }
+      }
+    `;
+    document.head.append(labelStyles);
+
+    const label = document.createElement("div");
+    label.className = "beyond-test";
+    label.innerHTML = '<span>Beyond the Test.</span><span class="beyond-test-heart" aria-hidden="true">♡</span>';
+    homeTitle.insertAdjacentElement("afterend", label);
+  }
+
+  const homeLead = q(".hero-copy .lead");
+  if (homeLead && !homeLead.querySelector(".lead-highlight")) {
+    homeLead.innerHTML = homeLead.textContent
+      .replace("fourth-grade", '<span class="lead-highlight" style="color:var(--pink)">fourth-grade</span>')
+      .replace("English learner", '<span class="lead-highlight" style="color:var(--aqua)">English learner</span>');
+  }
+
+  const heroArt = q(".hero-art");
+  const shareNote = q(".float-note.n3", heroArt);
+  if (heroArt && shareNote && !q(".reader-quote-card", heroArt)) {
+    const quoteStyles = document.createElement("style");
+    quoteStyles.textContent = `
+      .hero-art .n3 { bottom: 205px; right: 10px; }
+      .reader-quote-card {
+        position: absolute;
+        right: 8px;
+        bottom: 4px;
+        z-index: 5;
+        width: 178px;
+        min-height: 190px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 28px 20px 22px;
+        background: #fff;
+        color: var(--navy);
+        font-family: "Baloo 2", sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+        line-height: 1.45;
+        transform: rotate(4deg);
+        box-shadow: 0 18px 34px rgba(17, 36, 95, .18);
+      }
+      .reader-quote-card::before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        width: 76px;
+        height: 18px;
+        background: rgba(239, 95, 145, .78);
+        transform: translateX(-50%) rotate(-2deg);
+      }
+      .reader-quote-card span { display: block; }
+      .reader-quote-card span + span { margin-top: 5px; }
+      .reader-quote-heart {
+        align-self: flex-end;
+        margin-top: 9px;
+        font-family: Arial, sans-serif;
+        font-size: 2rem;
+        line-height: .8;
+      }
+      @media (max-width: 620px) {
+        .hero-art .n3 { bottom: 178px; }
+        .reader-quote-card { right: 2px; width: 150px; min-height: 165px; padding: 24px 16px 18px; font-size: .86rem; }
+      }
+    `;
+    document.head.append(quoteStyles);
+
+    const quoteCard = document.createElement("div");
+    quoteCard.className = "reader-quote-card";
+    quoteCard.innerHTML = `
+      <span>Every reader.</span>
+      <span>Every day.</span>
+      <span>Every step<br>forward.</span>
+      <span class="reader-quote-heart" aria-hidden="true">♡</span>
+    `;
+    heroArt.append(quoteCard);
+  }
+}
+
+if (currentPage === "about.html") {
+  const aboutArt = q(".page-hero-art");
+  const aboutKid = q('img[src="assets/images/about-kid.svg"]', aboutArt);
+  if (aboutArt && aboutKid && !q(".about-hero-blob", aboutArt)) {
+    const aboutStyles = document.createElement("style");
+    aboutStyles.textContent = `
+      .page-hero-art.about-art-with-blob { position: relative; }
+      .about-hero-blob {
+        position: absolute;
+        inset: 8px 20px;
+        z-index: 0;
+        background: var(--navy);
+        border-radius: 45% 55% 49% 51% / 41% 42% 58% 59%;
+        box-shadow: var(--shadow);
+      }
+      .about-art-with-blob > img {
+        position: relative;
+        z-index: 2;
+      }
+      @media (max-width: 620px) {
+        .about-hero-blob { inset: 14px 5px; }
+      }
+    `;
+    document.head.append(aboutStyles);
+    aboutArt.classList.add("about-art-with-blob");
+    const blob = document.createElement("div");
+    blob.className = "about-hero-blob";
+    blob.setAttribute("aria-hidden", "true");
+    aboutArt.prepend(blob);
+  }
+}
+
 const confidenceNote = q(".float-note.n1");
 if (confidenceNote && !confidenceNote.querySelector("img")) {
   const icon = document.createElement("img");
@@ -128,8 +304,8 @@ if (thinkNote && !thinkNote.querySelector("img")) {
   thinkNote.style.textAlign = "center";
 }
 
-const homeHero = q(".hero");
-if (homeHero && currentPage === "index.html") {
+const pageHero = q(".hero, .page-hero");
+if (pageHero) {
   const starStyles = document.createElement("style");
   starStyles.textContent = `
     .hero-stars {
@@ -187,5 +363,5 @@ if (homeHero && currentPage === "index.html") {
     starLayer.append(star);
   });
 
-  homeHero.prepend(starLayer);
+  pageHero.prepend(starLayer);
 }

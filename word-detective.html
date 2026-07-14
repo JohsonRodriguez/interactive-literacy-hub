@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Word Detective Lab | Interactive Literacy Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/word-detective.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-shell">
+      <a class="brand" href="index.html">
+        <img src="assets/icons/logo.svg" alt="">
+        <span class="brand-copy"><strong>Interactive</strong><span>Literacy Hub</span></span>
+      </a>
+      <a class="btn btn-secondary" href="vocabulary.html">← Vocabulary</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero detective-hero">
+      <div class="container page-hero-grid">
+        <div>
+          <span class="eyebrow">Custom vocabulary activity</span>
+          <h1>Word <span class="accent-green">Detective</span> Lab</h1>
+          <p class="lead">Create a personalized matching challenge with ten words your student is learning.</p>
+        </div>
+        <div class="detective-mark" aria-hidden="true">🔎</div>
+      </div>
+    </section>
+
+    <section class="section detective-section">
+      <div class="container">
+        <section id="setupView" class="activity detective-panel">
+          <span class="badge">Teacher setup</span>
+          <h2>Enter 5 words and descriptions</h2>
+          <p>Complete every row. Your entries will be used to create the student activity.</p>
+          <form id="wordSetupForm">
+            <div class="entry-head" aria-hidden="true"><span>Word</span><span>Description</span></div>
+            <div id="entryRows" class="entry-rows"></div>
+            <p id="setupError" class="form-message" role="alert"></p>
+            <button class="btn btn-primary begin-btn" type="submit">Begin →</button>
+          </form>
+        </section>
+
+        <section id="studentView" class="activity detective-panel student-panel" hidden>
+          <span class="badge">Student check-in</span>
+          <h2>Ready to begin?</h2>
+          <p>Enter your name before starting your Word Detective challenge.</p>
+          <form id="studentForm">
+            <label for="studentName">Student name</label>
+            <input id="studentName" name="studentName" maxlength="60" placeholder="Type your name" autocomplete="name" required>
+            <p id="nameError" class="form-message" role="alert"></p>
+            <button class="btn btn-primary" type="submit">Start Activity →</button>
+          </form>
+        </section>
+
+        <section id="gameView" class="activity detective-panel" hidden>
+          <span class="badge">Student challenge</span>
+          <h2>Match each word to its description</h2>
+          <p>Drag a word into the correct description. On a phone or tablet, tap a word and then tap its description.</p>
+          <div class="game-status"><strong id="matchCount">0 of 5 attempted</strong><span id="selectedHint">Choose a word to begin.</span></div>
+          <div class="detective-game">
+            <div>
+              <h3>Words</h3>
+              <div id="customWordBank" class="custom-word-bank"></div>
+            </div>
+            <div>
+              <h3>Descriptions</h3>
+              <div id="customDefinitionBank" class="custom-definition-bank"></div>
+            </div>
+          </div>
+          <p id="gameMessage" class="game-message" aria-live="polite"></p>
+          <div class="game-actions">
+            <button id="finishGame" class="btn btn-primary" type="button">Finish</button>
+            <button id="tryAgain" class="btn btn-secondary" type="button">Try Again</button>
+            <button id="downloadProgress" class="btn download-btn" type="button" hidden>Download PDF</button>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast"></div>
+  <script src="js/app.js"></script>
+  <script src="js/word-detective.js"></script>
+</body>
+</html>
