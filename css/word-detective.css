@@ -12,6 +12,13 @@
 .entry-row input:focus { border-color: var(--aqua); background: #fff; box-shadow: 0 0 0 4px #45c6bf20; }
 .form-message { min-height: 25px; margin: 12px 0 0; color: #b72e5e; font-weight: 900; }
 .begin-btn { margin-top: 6px; }
+.share-panel { max-width: 760px; text-align: center; }
+.share-panel > p { max-width: 600px; margin-inline: auto; }
+.activity-qr { width: 244px; min-height: 244px; display: grid; place-items: center; margin: 24px auto 16px; padding: 12px; border: 2px solid #e6e9f2; border-radius: 8px; background: #fff; }
+.activity-qr img, .activity-qr canvas { width: 220px; height: 220px; }
+.activity-qr.qr-unavailable { color: var(--muted); font-weight: 800; }
+.share-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
+.share-status { min-height: 25px; margin: 12px 0 0; color: #4c7c20 !important; font-weight: 900 !important; }
 .student-panel { max-width: 680px; text-align: center; }
 .student-panel form { max-width: 460px; margin: 24px auto 0; }
 .student-panel label { display: block; margin-bottom: 7px; color: var(--navy); font-weight: 900; text-align: left; }

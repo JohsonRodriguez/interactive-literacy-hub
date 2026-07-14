@@ -47,6 +47,19 @@
           </form>
         </section>
 
+        <section id="shareView" class="activity detective-panel share-panel" hidden>
+          <span class="badge">Share with students</span>
+          <h2>Your activity is ready</h2>
+          <p>Students can scan this QR code or use the copied link on their device.</p>
+          <div id="activityQr" class="activity-qr" aria-label="QR code for the student activity"></div>
+          <div class="share-actions">
+            <button id="copyActivityLink" class="btn btn-primary" type="button">Copy link</button>
+            <button id="openActivityHere" class="btn btn-secondary" type="button">Open on this device</button>
+            <button id="editActivity" class="btn btn-secondary" type="button">Edit words</button>
+          </div>
+          <p id="shareStatus" class="share-status" role="status" aria-live="polite"></p>
+        </section>
+
         <section id="studentView" class="activity detective-panel student-panel" hidden>
           <span class="badge">Student check-in</span>
           <h2>Ready to begin?</h2>
@@ -87,6 +100,7 @@
 
   <div class="toast"></div>
   <script src="js/app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="js/word-detective.js"></script>
 </body>
 </html>

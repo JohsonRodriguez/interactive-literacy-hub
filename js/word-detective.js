@@ -3,6 +3,7 @@ const setupForm = document.querySelector("#wordSetupForm");
 const studentForm = document.querySelector("#studentForm");
 const setupView = document.querySelector("#setupView");
 const studentView = document.querySelector("#studentView");
+const shareView = document.querySelector("#shareView");
 const gameView = document.querySelector("#gameView");
 const setupError = document.querySelector("#setupError");
 const nameError = document.querySelector("#nameError");
@@ -12,19 +13,75 @@ const matchCount = document.querySelector("#matchCount");
 const selectedHint = document.querySelector("#selectedHint");
 const gameMessage = document.querySelector("#gameMessage");
 const downloadButton = document.querySelector("#downloadProgress");
+const activityQr = document.querySelector("#activityQr");
+const shareStatus = document.querySelector("#shareStatus");
 
 let pairs = [];
 let studentName = "";
 let selectedWord = null;
 let attempts = [];
+let activityUrl = "";
+
+function encodeActivity(items) {
+  const bytes = new TextEncoder().encode(JSON.stringify(items.map(({ word, description }) => ({ word, description }))));
+  let binary = "";
+  bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function decodeActivity(value) {
+  try {
+    const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+    const binary = atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, "="));
+    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    const decoded = JSON.parse(new TextDecoder().decode(bytes));
+    if (!Array.isArray(decoded) || decoded.length !== 5) return null;
+    if (decoded.some((item) => typeof item.word !== "string" || typeof item.description !== "string" || !item.word.trim() || !item.description.trim())) return null;
+    return decoded.map((item, index) => ({ id: `pair-${index}`, word: item.word.trim().slice(0, 100), description: item.description.trim().slice(0, 300) }));
+  } catch (error) {
+    return null;
+  }
+}
+
+function getActivityUrl() {
+  const url = new URL(window.location.href);
+  url.hash = `activity=${encodeActivity(pairs)}`;
+  return url.href;
+}
+
+function showStudentView() {
+  setupView.hidden = true;
+  shareView.hidden = true;
+  studentView.hidden = false;
+  studentView.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function showShareView() {
+  const url = getActivityUrl();
+  activityUrl = url;
+  activityQr.replaceChildren();
+  activityQr.classList.remove("qr-unavailable");
+  shareStatus.textContent = "";
+
+  if (typeof QRCode === "function") {
+    new QRCode(activityQr, { text: url, width: 220, height: 220, colorDark: "#11245f", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.L });
+  } else {
+    activityQr.textContent = "The QR code could not load. You can still copy the activity link.";
+    activityQr.classList.add("qr-unavailable");
+  }
+
+  setupView.hidden = true;
+  shareView.hidden = false;
+  shareView.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 for (let index = 0; index < 5; index += 1) {
   const row = document.createElement("div");
   row.className = "entry-row";
   row.innerHTML = `
     <span class="entry-number">${index + 1}</span>
-    <input name="word-${index}" aria-label="Word ${index + 1}" placeholder="Word ${index + 1}" autocomplete="off" required>
-    <input name="description-${index}" aria-label="Description for word ${index + 1}" placeholder="Write its description" autocomplete="off" required>
+    <input name="word-${index}" aria-label="Word ${index + 1}" placeholder="Word ${index + 1}" maxlength="60" autocomplete="off" required>
+    <input name="description-${index}" aria-label="Description for word ${index + 1}" placeholder="Write its description" maxlength="180" autocomplete="off" required>
   `;
   entryRows.append(row);
 }
@@ -144,9 +201,23 @@ setupForm.addEventListener("submit", (event) => {
   }
 
   setupError.textContent = "";
-  setupView.hidden = true;
-  studentView.hidden = false;
-  studentView.scrollIntoView({ behavior: "smooth", block: "start" });
+  showShareView();
+});
+
+document.querySelector("#copyActivityLink").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(activityUrl);
+    shareStatus.textContent = "Link copied. It is ready to send to your students.";
+  } catch (error) {
+    shareStatus.textContent = "The link could not be copied. Please try again.";
+  }
+});
+
+document.querySelector("#openActivityHere").addEventListener("click", showStudentView);
+document.querySelector("#editActivity").addEventListener("click", () => {
+  shareView.hidden = true;
+  setupView.hidden = false;
+  setupView.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 studentForm.addEventListener("submit", (event) => {
@@ -239,3 +310,12 @@ downloadButton.addEventListener("click", () => {
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
+
+const sharedActivity = window.location.hash.startsWith("#activity=")
+  ? decodeActivity(window.location.hash.slice("#activity=".length))
+  : null;
+
+if (sharedActivity) {
+  pairs = sharedActivity;
+  showStudentView();
+}
