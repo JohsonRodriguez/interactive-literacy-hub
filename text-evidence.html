@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Text Evidence Challenge | Interactive Literacy Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/word-detective.css">
+  <link rel="stylesheet" href="css/context-clue.css">
+</head>
+<body>
+  <header class="site-header"><div class="container nav-shell"><a class="brand" href="index.html"><img src="assets/icons/logo.svg" alt=""><span class="brand-copy"><strong>Interactive</strong><span>Literacy Hub</span></span></a><a class="btn btn-secondary" href="reading.html">&larr; Reading</a></div></header>
+  <main>
+    <section class="page-hero"><div class="container page-hero-grid"><div><span class="eyebrow">Custom reading activity</span><h1>Text Evidence <span class="accent-pink">Challenge</span></h1><p class="lead">Create three personalized passages that help students select details supporting an idea or claim.</p></div><div class="context-mark" aria-hidden="true">?</div></div></section>
+    <section class="section detective-section"><div class="container">
+      <section id="textEvidenceSetupView" class="activity detective-panel">
+        <span class="badge">Teacher setup</span><h2>Create 3 text evidence questions</h2>
+        <p>For each question, enter a short passage, an idea to support, three possible text details, and the correct evidence.</p>
+        <div class="teacher-example">
+          <strong>Example</strong>
+          <p><b>Passage:</b> Ana practiced her poem every afternoon. At first, she spoke quietly and paused often. After one week, her voice sounded smooth, clear, and expressive.</p>
+          <p><b>Idea or claim to support:</b> Ana's practice helped her improve.</p>
+          <p><b>Possible text details:</b> Her voice became smooth, clear, and expressive (Correct) · She practiced in the afternoon · The poem was one page long</p>
+        </div>
+        <form id="textEvidenceSetupForm"><div id="textEvidenceBuilders" class="question-builders"></div><p id="textEvidenceSetupError" class="form-message" role="alert"></p><button class="btn btn-primary" type="submit">Begin &rarr;</button></form>
+      </section>
+      <section id="textEvidenceShareView" class="activity detective-panel share-panel" hidden>
+        <span class="badge">Share with students</span><h2>Your activity is ready</h2>
+        <p>Students can scan this QR code or use the copied link on their device.</p>
+        <div id="textEvidenceQr" class="activity-qr" aria-label="QR code for the student activity"></div>
+        <div class="share-actions"><button id="copyTextEvidenceLink" class="btn btn-primary" type="button">Copy link</button><button id="openTextEvidenceHere" class="btn btn-secondary" type="button">Open on this device</button><button id="editTextEvidence" class="btn btn-secondary" type="button">Edit questions</button></div>
+        <p id="textEvidenceShareStatus" class="share-status" role="status" aria-live="polite"></p>
+      </section>
+      <section id="textEvidenceStudentView" class="activity detective-panel student-panel" hidden>
+        <span class="badge">Student check-in</span><h2>Ready for the challenge?</h2><p>Enter your name before starting.</p>
+        <form id="textEvidenceStudentForm"><label for="textEvidenceStudentName">Student name</label><input id="textEvidenceStudentName" maxlength="60" placeholder="Type your name" autocomplete="name" required><p id="textEvidenceNameError" class="form-message" role="alert"></p><button class="btn btn-primary" type="submit">Start Activity &rarr;</button></form>
+      </section>
+      <section id="textEvidenceGameView" class="activity detective-panel" hidden>
+        <span class="badge">Student challenge</span><h2>Find the text evidence</h2><p>Read each passage and choose its text evidence. Each question allows one attempt.</p>
+        <div class="game-status"><strong id="textEvidenceProgress">0 of 3 answered</strong><span id="textEvidenceHint">Read each passage carefully.</span></div>
+        <div id="textEvidenceQuestions" class="context-questions"></div><p id="textEvidenceGameMessage" class="game-message" aria-live="polite"></p>
+        <div class="game-actions"><button id="finishTextEvidence" class="btn btn-primary" type="button">Finish</button><button id="retryTextEvidence" class="btn btn-secondary" type="button">Try Again</button><button id="downloadTextEvidencePdf" class="btn download-btn" type="button" hidden>Download PDF</button></div>
+      </section>
+    </div></section>
+  </main>
+  <div class="toast"></div><script src="js/app.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="js/text-evidence.js"></script>
+</body>
+</html>

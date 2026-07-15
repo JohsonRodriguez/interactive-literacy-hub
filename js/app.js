@@ -21,6 +21,14 @@ qa(".main-nav a").forEach((link) => {
   if (link.dataset.page === currentPage) link.classList.add("active");
 });
 
+const resourceMenu = q(".nav-dropdown");
+if (resourceMenu && q(".nav-dropdown-menu a.active", resourceMenu)) {
+  q("summary", resourceMenu).classList.add("active");
+}
+document.addEventListener("click", (event) => {
+  if (resourceMenu?.open && !resourceMenu.contains(event.target)) resourceMenu.removeAttribute("open");
+});
+
 const menu = q(".menu-toggle");
 const nav = q(".main-nav");
 menu?.addEventListener("click", () => nav.classList.toggle("open"));
@@ -114,6 +122,7 @@ q("[data-reflect]")?.addEventListener("submit", (event) => {
 if (currentPage === "vocabulary.html") {
   const wordLab = q(".word-game")?.closest(".activity");
   if (wordLab) {
+    wordLab.closest(".section")?.classList.add("word-challenge-section");
     wordLab.innerHTML = `
       <h3>Build Your Own Word Detective Challenge</h3>
       <p class="lead" style="max-width:820px">
@@ -127,6 +136,7 @@ if (currentPage === "vocabulary.html") {
 
   const contextLab = q("[data-check-answer]")?.closest(".activity");
   if (contextLab) {
+    contextLab.closest(".section")?.classList.add("context-challenge-section");
     contextLab.innerHTML = `
       <h3>Build Your Own Context Clue Challenge</h3>
       <p class="lead" style="max-width:820px">
@@ -134,6 +144,44 @@ if (currentPage === "vocabulary.html") {
         Then provide three answer choices and identify the correct meaning.
       </p>
       <a class="btn btn-primary" href="context-clue.html">Start →</a>
+    `;
+  }
+}
+
+if (currentPage === "reading.html") {
+  const mainIdeaLab = q("#m");
+  if (mainIdeaLab) {
+    mainIdeaLab.innerHTML = `
+      <h3>Build Your Own Main Idea Challenge</h3>
+      <p class="lead" style="max-width:820px">
+        Create three short reading passages. Add three possible main ideas for each
+        passage and select the correct answer. Then share the activity with your students.
+      </p>
+      <a class="btn btn-primary" href="main-idea.html">Start &rarr;</a>
+    `;
+  }
+
+  const inferenceLab = q("#i");
+  if (inferenceLab) {
+    inferenceLab.innerHTML = `
+      <h3>Build Your Own Inference Challenge</h3>
+      <p class="lead" style="max-width:820px">
+        Create three short reading passages. Add three possible inferences for each
+        passage and select the conclusion best supported by the text clues.
+      </p>
+      <a class="btn btn-primary" href="inference.html">Start &rarr;</a>
+    `;
+  }
+
+  const textEvidenceLab = q("#e");
+  if (textEvidenceLab) {
+    textEvidenceLab.innerHTML = `
+      <h3>Build Your Own Text Evidence Challenge</h3>
+      <p class="lead" style="max-width:820px">
+        Create three short reading passages. Add three possible text details for each
+        passage and select the evidence that best supports the stated idea.
+      </p>
+      <a class="btn btn-primary" href="text-evidence.html">Start &rarr;</a>
     `;
   }
 }
@@ -250,7 +298,7 @@ if (currentPage === "index.html") {
 
 if (currentPage === "about.html") {
   const aboutArt = q(".page-hero-art");
-  const aboutKid = q('img[src="assets/images/about-kid.svg"]', aboutArt);
+  const aboutKid = q('img[src="assets/images/about-kid.png"]', aboutArt);
   if (aboutArt && aboutKid && !q(".about-hero-blob", aboutArt)) {
     const aboutStyles = document.createElement("style");
     aboutStyles.textContent = `

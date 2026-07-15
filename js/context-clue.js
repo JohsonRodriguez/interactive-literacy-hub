@@ -1,6 +1,7 @@
 const setupForm = document.querySelector("#contextSetupForm");
 const studentForm = document.querySelector("#contextStudentForm");
 const setupView = document.querySelector("#contextSetupView");
+const shareView = document.querySelector("#contextShareView");
 const studentView = document.querySelector("#contextStudentView");
 const gameView = document.querySelector("#contextGameView");
 const builders = document.querySelector("#questionBuilders");
@@ -11,25 +12,99 @@ const progressLabel = document.querySelector("#contextProgress");
 const hint = document.querySelector("#contextHint");
 const gameMessage = document.querySelector("#contextGameMessage");
 const downloadButton = document.querySelector("#downloadContextPdf");
-let questions = [], responses = [], studentName = "";
+const activityQr = document.querySelector("#contextActivityQr");
+const shareStatus = document.querySelector("#contextShareStatus");
+let questions = [], responses = [], studentName = "", activityUrl = "";
 
 for (let index = 0; index < 3; index += 1) {
   const builder = document.createElement("section");
   builder.className = "question-builder";
-  builder.innerHTML = `<h3>Question ${index + 1}</h3><div class="builder-grid"><div class="builder-field"><label>Target word</label><input name="word-${index}" placeholder="Example: relieved" required></div><div class="builder-field"><label>Sentence containing the word</label><input name="sentence-${index}" placeholder="Maya was relieved when she found her book." required></div><div class="choice-grid">${[0,1,2].map(choice => `<div class="builder-field"><label>Option ${choice + 1}</label><input name="option-${index}-${choice}" required></div>`).join("")}</div><div class="builder-field full"><label>Correct option</label><select name="correct-${index}"><option value="0">Option 1</option><option value="1">Option 2</option><option value="2">Option 3</option></select></div></div>`;
+  builder.innerHTML = `<h3>Question ${index + 1}</h3><div class="builder-grid"><div class="builder-field"><label>Target word</label><input name="word-${index}" placeholder="Example: relieved" maxlength="40" required></div><div class="builder-field"><label>Sentence containing the word</label><input name="sentence-${index}" placeholder="Maya was relieved when she found her book." maxlength="160" required></div><div class="choice-grid">${[0,1,2].map(choice => `<div class="builder-field"><label>Option ${choice + 1}</label><input name="option-${index}-${choice}" maxlength="80" required></div>`).join("")}</div><div class="builder-field full"><label>Correct option</label><select name="correct-${index}"><option value="0">Option 1</option><option value="1">Option 2</option><option value="2">Option 3</option></select></div></div>`;
   builders.append(builder);
 }
 
 function escapeHtml(value) { const span=document.createElement("span"); span.textContent=value; return span.innerHTML; }
 function highlightedSentence(sentence, word) { const safe=escapeHtml(sentence), escaped=word.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); return safe.replace(new RegExp(`(${escaped})`,"i"),"<mark>$1</mark>"); }
 
+function encodeActivity(items) {
+  const payload = items.map(({ word, sentence, options, correct }) => ({ word, sentence, options, correct }));
+  const bytes = new TextEncoder().encode(JSON.stringify(payload));
+  let binary = "";
+  bytes.forEach(byte => { binary += String.fromCharCode(byte); });
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function decodeActivity(value) {
+  try {
+    const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+    const binary = atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, "="));
+    const bytes = Uint8Array.from(binary, character => character.charCodeAt(0));
+    const decoded = JSON.parse(new TextDecoder().decode(bytes));
+    if (!Array.isArray(decoded) || decoded.length !== 3) return null;
+    const invalid = decoded.some(question =>
+      typeof question.word !== "string" || !question.word.trim() ||
+      typeof question.sentence !== "string" || !question.sentence.trim() ||
+      !Array.isArray(question.options) || question.options.length !== 3 ||
+      question.options.some(option => typeof option !== "string" || !option.trim()) ||
+      !Number.isInteger(question.correct) || question.correct < 0 || question.correct > 2
+    );
+    if (invalid) return null;
+    return decoded.map((question, index) => ({
+      id: `q-${index}`,
+      word: question.word.trim().slice(0, 40),
+      sentence: question.sentence.trim().slice(0, 160),
+      options: question.options.map(option => option.trim().slice(0, 80)),
+      correct: question.correct
+    }));
+  } catch (error) { return null; }
+}
+
+function showStudentView() {
+  setupView.hidden = true;
+  shareView.hidden = true;
+  studentView.hidden = false;
+  studentView.scrollIntoView({ behavior: "smooth" });
+}
+
+function showShareView() {
+  const url = new URL(window.location.href);
+  url.hash = `context=${encodeActivity(questions)}`;
+  activityUrl = url.href;
+  activityQr.replaceChildren();
+  activityQr.classList.remove("qr-unavailable");
+  shareStatus.textContent = "";
+  try {
+    if (typeof QRCode !== "function") throw new Error("QR library unavailable");
+    new QRCode(activityQr, { text: activityUrl, width: 220, height: 220, colorDark: "#11245f", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.L });
+  } catch (error) {
+    activityQr.textContent = "The QR code could not load. You can still copy the activity link.";
+    activityQr.classList.add("qr-unavailable");
+  }
+  setupView.hidden = true;
+  shareView.hidden = false;
+  shareView.scrollIntoView({ behavior: "smooth" });
+}
+
 setupForm.addEventListener("submit", event => {
   event.preventDefault(); const data=new FormData(setupForm);
   questions=Array.from({length:3},(_,index)=>({id:`q-${index}`,word:data.get(`word-${index}`).trim(),sentence:data.get(`sentence-${index}`).trim(),options:[0,1,2].map(choice=>data.get(`option-${index}-${choice}`).trim()),correct:+data.get(`correct-${index}`)}));
   if(questions.some(question=>!question.word||!question.sentence||question.options.some(option=>!option))){setupError.textContent="Please complete all fields for the 3 questions.";return;}
   if(questions.some(question=>!question.sentence.toLowerCase().includes(question.word.toLowerCase()))){setupError.textContent="Each sentence must contain its target word.";return;}
-  setupError.textContent=""; setupView.hidden=true; studentView.hidden=false; studentView.scrollIntoView({behavior:"smooth"});
+  setupError.textContent=""; showShareView();
 });
+
+document.querySelector("#copyContextLink").onclick = async () => {
+  try {
+    await navigator.clipboard.writeText(activityUrl);
+    shareStatus.textContent = "Link copied. It is ready to send to your students.";
+  } catch (error) { shareStatus.textContent = "The link could not be copied. Please try again."; }
+};
+document.querySelector("#openContextHere").onclick = showStudentView;
+document.querySelector("#editContextActivity").onclick = () => {
+  shareView.hidden = true;
+  setupView.hidden = false;
+  setupView.scrollIntoView({ behavior: "smooth" });
+};
 
 studentForm.addEventListener("submit", event => { event.preventDefault(); studentName=document.querySelector("#contextStudentName").value.trim(); if(!studentName){nameError.textContent="Please enter your name.";return;} nameError.textContent=""; buildGame(); studentView.hidden=true; gameView.hidden=false; gameView.scrollIntoView({behavior:"smooth"}); });
 
@@ -45,3 +120,11 @@ document.querySelector("#retryContext").onclick=()=>{buildGame();gameView.scroll
 function pdfEscape(value){return value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^\x20-\x7E]/g,"").replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)");}
 function makePdf(){const score=responses.filter(response=>response.correct).length;const lines=[{t:"Interactive Literacy Hub",s:20,y:755,c:"0.067 0.141 0.373"},{t:"Context Clue Challenge - Progress Report",s:16,y:725,c:"0.937 0.373 0.569"},{t:`Student: ${studentName}`,s:12,y:690,c:"0.15 0.19 0.37"},{t:`Score: ${score} out of 3`,s:12,y:670,c:"0.15 0.19 0.37"},{t:`Date: ${new Date().toLocaleDateString()}`,s:12,y:650,c:"0.15 0.19 0.37"}];responses.forEach((r,i)=>{const y=605-i*145;lines.push({t:`${i+1}. ${r.word} - ${r.correct?"Correct":"Incorrect"}`,s:12,y,c:r.correct?"0.30 0.49 0.13":"0.72 0.18 0.37"},{t:`Sentence: ${r.sentence}`.slice(0,82),s:9,y:y-22,c:"0.25 0.28 0.40"},{t:`Selected: ${r.selected}`.slice(0,82),s:10,y:y-43,c:"0.25 0.28 0.40"},{t:`Correct answer: ${r.correctAnswer}`.slice(0,82),s:10,y:y-64,c:"0.25 0.28 0.40"});});const stream=lines.map(l=>`BT /F1 ${l.s} Tf ${l.c} rg 54 ${l.y} Td (${pdfEscape(l.t)}) Tj ET`).join("\n");const objects=["<< /Type /Catalog /Pages 2 0 R >>","<< /Type /Pages /Kids [3 0 R] /Count 1 >>","<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>",`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`,"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"];let pdf="%PDF-1.4\n";const offsets=[0];objects.forEach((object,index)=>{offsets.push(pdf.length);pdf+=`${index+1} 0 obj\n${object}\nendobj\n`;});const xref=pdf.length;pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;offsets.slice(1).forEach(offset=>pdf+=`${String(offset).padStart(10,"0")} 00000 n \n`);pdf+=`trailer\n<< /Size ${objects.length+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;return new Blob([pdf],{type:"application/pdf"});}
 downloadButton.onclick=()=>{const url=URL.createObjectURL(makePdf()),link=document.createElement("a");link.href=url;link.download=`context-clue-${studentName.toLowerCase().replace(/[^a-z0-9]+/g,"-")||"student"}.pdf`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+
+const sharedActivity = window.location.hash.startsWith("#context=")
+  ? decodeActivity(window.location.hash.slice("#context=".length))
+  : null;
+if (sharedActivity) {
+  questions = sharedActivity;
+  showStudentView();
+}

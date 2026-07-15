@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Main Idea Challenge | Interactive Literacy Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/word-detective.css">
+  <link rel="stylesheet" href="css/context-clue.css">
+</head>
+<body>
+  <header class="site-header"><div class="container nav-shell"><a class="brand" href="index.html"><img src="assets/icons/logo.svg" alt=""><span class="brand-copy"><strong>Interactive</strong><span>Literacy Hub</span></span></a><a class="btn btn-secondary" href="reading.html">&larr; Reading</a></div></header>
+  <main>
+    <section class="page-hero"><div class="container page-hero-grid"><div><span class="eyebrow">Custom reading activity</span><h1>Main Idea <span class="accent-pink">Challenge</span></h1><p class="lead">Create three personalized passages that help students identify the most important idea.</p></div><div class="context-mark" aria-hidden="true">?</div></div></section>
+    <section class="section detective-section"><div class="container">
+      <section id="mainIdeaSetupView" class="activity detective-panel">
+        <span class="badge">Teacher setup</span><h2>Create 3 main idea questions</h2>
+        <p>For each question, enter a short passage, add three possible main ideas, and select the correct answer.</p>
+        <div class="teacher-example">
+          <strong>Example</strong>
+          <p><b>Passage:</b> Every Saturday, neighbors work together in the community garden. Families plant vegetables, children water the plants, and everyone shares the food they grow. The garden gate is painted blue.</p>
+          <p><b>Possible main ideas:</b> The community garden brings neighbors together (Correct) · Blue is a popular color · Vegetables only grow on Saturdays</p>
+        </div>
+        <form id="mainIdeaSetupForm"><div id="mainIdeaBuilders" class="question-builders"></div><p id="mainIdeaSetupError" class="form-message" role="alert"></p><button class="btn btn-primary" type="submit">Begin &rarr;</button></form>
+      </section>
+      <section id="mainIdeaShareView" class="activity detective-panel share-panel" hidden>
+        <span class="badge">Share with students</span><h2>Your activity is ready</h2>
+        <p>Students can scan this QR code or use the copied link on their device.</p>
+        <div id="mainIdeaQr" class="activity-qr" aria-label="QR code for the student activity"></div>
+        <div class="share-actions"><button id="copyMainIdeaLink" class="btn btn-primary" type="button">Copy link</button><button id="openMainIdeaHere" class="btn btn-secondary" type="button">Open on this device</button><button id="editMainIdea" class="btn btn-secondary" type="button">Edit questions</button></div>
+        <p id="mainIdeaShareStatus" class="share-status" role="status" aria-live="polite"></p>
+      </section>
+      <section id="mainIdeaStudentView" class="activity detective-panel student-panel" hidden>
+        <span class="badge">Student check-in</span><h2>Ready for the challenge?</h2><p>Enter your name before starting.</p>
+        <form id="mainIdeaStudentForm"><label for="mainIdeaStudentName">Student name</label><input id="mainIdeaStudentName" maxlength="60" placeholder="Type your name" autocomplete="name" required><p id="mainIdeaNameError" class="form-message" role="alert"></p><button class="btn btn-primary" type="submit">Start Activity &rarr;</button></form>
+      </section>
+      <section id="mainIdeaGameView" class="activity detective-panel" hidden>
+        <span class="badge">Student challenge</span><h2>Find the main idea</h2><p>Read each passage and choose its main idea. Each question allows one attempt.</p>
+        <div class="game-status"><strong id="mainIdeaProgress">0 of 3 answered</strong><span id="mainIdeaHint">Read each passage carefully.</span></div>
+        <div id="mainIdeaQuestions" class="context-questions"></div><p id="mainIdeaGameMessage" class="game-message" aria-live="polite"></p>
+        <div class="game-actions"><button id="finishMainIdea" class="btn btn-primary" type="button">Finish</button><button id="retryMainIdea" class="btn btn-secondary" type="button">Try Again</button><button id="downloadMainIdeaPdf" class="btn download-btn" type="button" hidden>Download PDF</button></div>
+      </section>
+    </div></section>
+  </main>
+  <div class="toast"></div><script src="js/app.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script src="js/main-idea.js"></script>
+</body>
+</html>
