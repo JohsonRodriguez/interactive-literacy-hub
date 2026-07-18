@@ -31,6 +31,34 @@
     $("#createLearnerForm").addEventListener("submit", createLearner);
   }
 
+  function addLearnerToGroupCard({ classId, learnerId, displayName }) {
+    const editForm = document.querySelector(`.edit-group-form[data-class-id="${CSS.escape(classId)}"]`);
+    const card = editForm?.closest(".group-summary-card");
+    if (!card) return;
+    const count = card.querySelector(".group-card-meta strong");
+    const label = card.querySelector(".group-card-meta span");
+    const nextCount = (Number(count?.textContent) || 0) + 1;
+    if (count) count.textContent = String(nextCount);
+    if (label) label.textContent = nextCount === 1 ? "learner" : "learners";
+    const panel = card.querySelector(".class-students-panel");
+    if (!panel) return;
+    let body = panel.querySelector("tbody");
+    if (!body) {
+      const groupName = card.querySelector(".group-card-title")?.textContent || "Learning group";
+      panel.innerHTML = `<div class="class-students-heading"><h3>${safe(groupName)} learners</h3><button class="close-group-panel" type="button" data-close-panel="${safe(panel.id)}">Close</button></div><div class="table-wrap"><table><thead><tr><th>Learner</th><th>Current Reading / Stage</th><th>Journey Progress</th><th>Latest completed activity</th><th>Credentials</th></tr></thead><tbody></tbody></table></div>`;
+      body = panel.querySelector("tbody");
+      panel.querySelector("[data-close-panel]")?.addEventListener("click", () => {
+        panel.hidden = true;
+        const toggle = card.querySelector(".group-card-toggle");
+        toggle?.setAttribute("aria-expanded", "false");
+        if (toggle) toggle.textContent = "View learners →";
+        card.classList.remove("is-open");
+      });
+    }
+    const learnerLabel = learnerId ? `<a class="learner-detail-link" href="student-progress.html?student=${encodeURIComponent(learnerId)}">${safe(displayName)}</a>` : safe(displayName);
+    body.insertAdjacentHTML("beforeend", `<tr><td>${learnerLabel}</td><td>Choose a reading<small class="table-subtext">Not started</small></td><td><span class="teacher-progress">0%</span></td><td>Just started</td><td>Credentials available above</td></tr>`);
+  }
+
   async function createLearner(event) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -46,6 +74,7 @@
       $("#learnerCredentials").hidden = false;
       const studentCount = $("#studentCount");
       if (studentCount) studentCount.textContent = String((Number(studentCount.textContent) || 0) + 1);
+      addLearnerToGroupCard({ classId: form.elements.classId.value, learnerId: data.learnerId, displayName: data.displayName });
       status.textContent = `${data.displayName} was added to the learning group.`; status.className = "auth-message success";
       form.elements.displayName.value = "";
       const groupName = form.elements.classId.options[form.elements.classId.selectedIndex].textContent;
@@ -180,6 +209,10 @@
       status.className = "dashboard-status error";
     }
   }, { once: true });
+
+  if (window.hubCurrentUser) {
+    document.dispatchEvent(new CustomEvent("hub:auth-ready", { detail: window.hubCurrentUser }));
+  }
 
   async function resetAndDownloadCredentials(event) {
     const button = event.currentTarget;

@@ -33,7 +33,7 @@
 
   const form = document.querySelector("#loginForm");
   if (!form) return;
-  const loginLead=document.querySelector(".auth-welcome .lead");if(loginLead)loginLead.textContent="Sign in to keep your practice, points, and Eagle Journey together.";
+  const loginLead=document.querySelector(".auth-welcome .lead");if(loginLead)loginLead.textContent="Sign in to keep your practice, points, and reading journeys together.";
   const registrationLink = document.querySelector(".auth-switch");
   if (registrationLink) registrationLink.innerHTML = '<strong>New here?</strong> <a href="register.html"><strong>Create an educator account</strong></a>';
   const identifierInput = form.elements.email;

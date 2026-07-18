@@ -218,7 +218,7 @@
 .forum-replies p { margin:0; padding:9px 11px; border-radius:10px; background:#f5f8fc; }
 .forum-complete-mark { display:inline-block; margin-top:10px; color:#315e16; font-weight:900; }
 .forum-requirements { display:flex; gap:12px; flex-wrap:wrap; margin-top:24px; }
-.forum-requirements span { padding:8px 12px; border-radius:999px; background:#edf1f6; color:#68738a; font-weight:900; }
+.forum-requirements span { display:inline-flex; align-items:center; gap:4px; padding:8px 12px; border-radius:999px; background:#edf1f6; color:#68738a; font-weight:900; }
 .forum-requirements span.done { background:#eff9e8; color:#315e16; }
 .educator-forum-card h2 small { color:#68738a; font:700 .82rem Nunito,sans-serif; }
 .educator-forum-list { display:grid; gap:16px; margin-top:22px; }

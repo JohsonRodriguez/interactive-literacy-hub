@@ -90,7 +90,7 @@ Deno.serve(async request => {
         if (profileError) throw profileError;
         const { error: memberError } = await admin.from("class_members").insert({ class_id: classId, student_id: createdUserId });
         if (memberError) throw memberError;
-        return json({ username, loginCode, displayName: cleanName });
+        return json({ learnerId: createdUserId, username, loginCode, displayName: cleanName });
       } catch (linkError) {
         await admin.auth.admin.deleteUser(createdUserId);
         throw linkError;

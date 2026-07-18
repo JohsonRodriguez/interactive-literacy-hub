@@ -110,5 +110,6 @@
     }
   }
   document.addEventListener("hub:auth-ready", loadDashboard, { once: true });
+  if (window.hubCurrentUser) loadDashboard({ detail: window.hubCurrentUser });
   document.querySelector("[data-logout]")?.addEventListener("click", () => window.hubAuth.signOutAndRedirect());
 })();
