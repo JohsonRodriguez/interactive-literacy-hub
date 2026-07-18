@@ -173,6 +173,7 @@ document.querySelector("#finishMainIdea").addEventListener("click", () => {
   mainIdeaGameMessage.textContent = `${mainIdeaStudentName}, your final score is ${score} out of 3.`;
   mainIdeaGameMessage.className = score >= 2 ? "game-message success" : "game-message try";
   mainIdeaDownload.hidden = false;
+  window.hubProgress?.recordCompletedActivity("reading-main-idea-01", score / 3 * 100, 1, { messageElement: mainIdeaGameMessage });
 });
 document.querySelector("#retryMainIdea").addEventListener("click", buildMainIdeaGame);
 

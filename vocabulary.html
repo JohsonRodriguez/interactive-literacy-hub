@@ -1,1 +1,70 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vocabulary | Interactive Literacy Hub</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/styles.css"></head><body><header class="site-header"><div class="container nav-shell"><a class="brand" href="index.html"><img src="assets/icons/logo.svg"><span class="brand-copy"><strong>Interactive</strong><span>Literacy Hub</span></span></a><button class="menu-toggle"><span></span><span></span><span></span></button><nav class="main-nav"><a href="index.html" data-page="index.html">Home</a><a href="about.html" data-page="about.html">About</a><details class="nav-dropdown"><summary>Resources</summary><div class="nav-dropdown-menu"><a href="vocabulary.html" data-page="vocabulary.html">Vocabulary</a><a href="reading.html" data-page="reading.html">Reading</a><a href="collaborate.html" data-page="collaborate.html">Collaborate</a><a href="culture.html" data-page="culture.html">Culture</a></div></details><a href="technology.html" data-page="technology.html">Tech Tools</a><a href="family.html" data-page="family.html">Family</a></nav><button class="teacher-link" data-open-teacher>For Teachers</button></div></header><main><section class="page-hero"><div class="container page-hero-grid"><div><span class="eyebrow">Vocabulary Development</span><h1>Vocabulary <span class="accent-green">Development</span></h1><p class="lead">Learn new words through context, visuals, movement, and meaningful use.</p><div class="goal-box">I can use context clues to understand new words.</div></div><div class="page-hero-art vocabulary-art"><div class="vocabulary-hero-blob" aria-hidden="true"></div><img src="assets/images/student-writing.png" alt="Student writing"></div></div></section><section class="section"><div class="container"><div class="section-head"><div><span class="badge">Interactive practice</span><h2 class="section-title">Word Detective Lab</h2></div></div><div class="activity"><div class="word-game"><div class="word-bank"><div class="draggable" draggable="true" data-word="curious">curious</div><div class="draggable" draggable="true" data-word="observe">observe</div><div class="draggable" draggable="true" data-word="brave">brave</div></div><div class="definition-bank"><div class="dropzone" data-answer="observe">to watch carefully</div><div class="dropzone" data-answer="brave">ready to face difficulty</div><div class="dropzone" data-answer="curious">wanting to learn more</div></div></div></div></div></section><section class="section alt"><div class="container"><div class="section-head"><div><span class="badge">Interactive practice</span><h2 class="section-title">Context Clue Challenge</h2></div></div><div class="activity"><h3>Context Clue Challenge</h3><p>Maya was <strong>relieved</strong> when she found her missing book. She smiled and took a deep breath.</p><div class="question"><div class="option" data-correct="false">confused</div><div class="option" data-correct="true">no longer worried</div><div class="option" data-correct="false">very tired</div></div><button class="btn btn-primary" data-check-answer>Check Answer</button><div class="feedback"></div></div></div></section></main><footer class="footer"><div class="container"><div class="footer-grid"><div><h3>Interactive Literacy Hub</h3><p>A welcoming digital space where fourth-grade English learners read, think, speak, and grow.</p></div><div><h3>Explore</h3><a href="vocabulary.html">Vocabulary</a><a href="reading.html">Reading</a><a href="culture.html">Culture</a></div><div><h3>Support</h3><a href="family.html">Family</a></div></div><div class="footer-bottom">Student-first, low-anxiety, culturally responsive literacy practice.</div></div></footer><div class="modal" id="teacherModal"><div class="modal-card"><button class="modal-close" data-close-modal>×</button><h2>Teacher Guidance</h2><p>Model one example, offer choice, encourage wait time, and allow students to retry. The hub is designed for student practice rather than lesson-plan delivery.</p></div></div><div class="toast"></div><script src="js/app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="assets/icons/logo.png">
+  <title>Vocabulary Activity Overview | Interactive Literacy Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="vocabulary-overview-page">
+  <header class="site-header">
+    <div class="container nav-shell">
+      <a class="brand" href="index.html"><img src="assets/icons/logo.png" alt=""><span class="brand-copy"><strong>Interactive</strong><span>Literacy Hub</span></span></a>
+      <button class="menu-toggle" aria-label="Open navigation"><span></span><span></span><span></span></button>
+      <nav class="main-nav">
+        <a href="index.html" data-page="index.html">Home</a><a href="about.html" data-page="about.html">About</a>
+        <details class="nav-dropdown"><summary>Practice</summary><div class="nav-dropdown-menu"><a href="vocabulary.html" data-page="vocabulary.html">Vocabulary</a><a href="reading.html" data-page="reading.html">Reading</a><a href="collaborate.html" data-page="collaborate.html">Collaborate</a><a href="culture.html" data-page="culture.html">Culture</a></div></details>
+        <a href="technology.html" data-page="technology.html">Tech Tools</a><a href="family.html" data-page="family.html">Family</a>
+      </nav>
+      <button class="teacher-link">Sign In</button>
+    </div>
+  </header>
+  <main>
+    <section class="page-hero">
+      <div class="container page-hero-grid">
+        <div><span class="eyebrow">Educator activity overview</span><h1>Vocabulary <span class="accent-green">Matching</span></h1><p class="lead">See how learners build word knowledge inside a Reading Journey.</p></div>
+        <div class="page-hero-art vocabulary-art"><div class="vocabulary-hero-blob" aria-hidden="true"></div><img src="assets/images/student-writing.png" alt="Student practicing vocabulary"></div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="container overview-grid">
+        <article class="dashboard-card">
+          <span class="badge">What learners will do</span>
+          <h2>Match words with meanings</h2>
+          <p>After reading the story, the learner sees ten useful, less-familiar words selected from that text. The words appear in one column and their meanings appear in a separate, mixed column.</p>
+          <p>The learner selects a word and then chooses its matching description. The platform validates each association and provides simple feedback such as <strong>Correct match</strong> or <strong>Not quite—try again</strong>.</p>
+          <p>The activity is completed when all ten words have been matched. Completion, accuracy, attempts, and time are saved separately in the learner’s private progress.</p>
+        </article>
+        <article class="dashboard-card">
+          <span class="badge">Skills learners develop</span>
+          <h2>Vocabulary and reading growth</h2>
+          <ul class="skill-outcomes">
+            <li>Understand unfamiliar words in context.</li>
+            <li>Connect a word with a clear definition.</li>
+            <li>Use details from a reading to confirm meaning.</li>
+            <li>Build academic vocabulary for comprehension.</li>
+            <li>Practice attention, comparison, and flexible thinking.</li>
+            <li>Learn from feedback without losing completion progress.</li>
+            <li>Develop confidence through retries and positive language.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+    <section class="section alt">
+      <div class="container">
+        <div class="section-head"><div><span class="badge">Visual reference</span><h2 class="section-title">Example activity</h2></div></div>
+        <div class="vocabulary-preview" aria-label="Non-interactive vocabulary matching example">
+          <div><h3>Words</h3><span>Word A</span><span>Word B</span><span>Word C</span></div>
+          <div class="preview-arrows" aria-hidden="true">↔<br>↔<br>↔</div>
+          <div><h3>Meanings</h3><span>Meaning 1</span><span>Meaning 2</span><span>Meaning 3</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer"><div class="container"><div class="footer-grid"><div><h3>Interactive Literacy Hub</h3><p>A welcoming digital space where fourth-grade English learners read, think, speak, and grow.</p></div><div><h3>Explore</h3><a href="vocabulary.html">Vocabulary</a><a href="reading.html">Reading</a><a href="culture.html">Culture</a></div><div><h3>Access</h3><a href="login.html">Sign In</a></div></div><div class="footer-bottom">Student-first, low-anxiety, culturally responsive literacy practice.</div></div></footer>
+  <div class="toast"></div><script src="js/app.js"></script>
+</body>
+</html>

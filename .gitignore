@@ -1,0 +1,26 @@
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Supabase and local tooling state
+.supabase/
+.branches/
+.temp/
+.tmp/
+node_modules/
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and generated reports
+*.log
+npm-debug.log*
+build-report.json
+

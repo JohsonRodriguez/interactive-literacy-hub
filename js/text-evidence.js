@@ -177,6 +177,7 @@ document.querySelector("#finishTextEvidence").addEventListener("click", () => {
   textEvidenceGameMessage.textContent = `${textEvidenceStudentName}, your final score is ${score} out of 3.`;
   textEvidenceGameMessage.className = score >= 2 ? "game-message success" : "game-message try";
   textEvidenceDownload.hidden = false;
+  window.hubProgress?.recordCompletedActivity("reading-text-evidence-01", score / 3 * 100, 1, { messageElement: textEvidenceGameMessage });
 });
 document.querySelector("#retryTextEvidence").addEventListener("click", buildTextEvidenceGame);
 
