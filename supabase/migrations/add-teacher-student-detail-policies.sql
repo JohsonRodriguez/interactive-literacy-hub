@@ -1,0 +1,12 @@
+begin;
+grant select, insert, update on public.reflections to authenticated;
+grant select on public.student_badges to authenticated;
+drop policy if exists "Educators read class learner reflections" on public.reflections;
+create policy "Educators read class learner reflections" on public.reflections for select to authenticated using (student_id=auth.uid() or exists(select 1 from public.classes c join public.class_members cm on cm.class_id=c.id where c.teacher_id=auth.uid() and cm.student_id=reflections.student_id));
+drop policy if exists "Learners insert own reflections" on public.reflections;
+create policy "Learners insert own reflections" on public.reflections for insert to authenticated with check (student_id=auth.uid());
+drop policy if exists "Learners update own reflections" on public.reflections;
+create policy "Learners update own reflections" on public.reflections for update to authenticated using (student_id=auth.uid()) with check (student_id=auth.uid());
+drop policy if exists "Educators read class learner badges" on public.student_badges;
+create policy "Educators read class learner badges" on public.student_badges for select to authenticated using (student_id=auth.uid() or exists(select 1 from public.classes c join public.class_members cm on cm.class_id=c.id where c.teacher_id=auth.uid() and cm.student_id=student_badges.student_id));
+commit;

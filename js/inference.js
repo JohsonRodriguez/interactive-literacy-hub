@@ -193,6 +193,7 @@ document.querySelector("#finishInference").addEventListener("click", () => {
   inferenceGameMessage.textContent = `${inferenceStudentName}, your final score is ${score} out of 3.`;
   inferenceGameMessage.className = score >= 2 ? "game-message success" : "game-message try";
   inferenceDownload.hidden = false;
+  window.hubProgress?.recordCompletedActivity("reading-inference-01", score / 3 * 100, 1, { messageElement: inferenceGameMessage });
 });
 document.querySelector("#retryInference").addEventListener("click", buildInferenceGame);
 

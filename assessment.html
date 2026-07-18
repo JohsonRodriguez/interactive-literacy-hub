@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en" class="auth-checking">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/png" href="assets/icons/logo.png">
+  <title>Metacognition | Interactive Literacy Hub</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="dashboard-page" data-allowed-roles="student">
+  <div class="auth-loading-screen">Opening metacognition…</div>
+  <main id="assessmentContent" class="container dashboard-content" hidden>
+    <section class="dashboard-card">
+      <span class="badge">Reading Journey</span>
+      <h1>Metacognition</h1>
+      <p>Metacognition is the final stage of The Community Garden Reading Journey.</p>
+      <a class="btn btn-primary" href="reading-journey.html?reading=community-garden&amp;stage=reflection">Continue to Metacognition →</a>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.7"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script>document.addEventListener("hub:auth-ready",()=>document.querySelector("#assessmentContent").hidden=false,{once:true});</script>
+</body>
+</html>

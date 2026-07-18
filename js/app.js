@@ -1,6 +1,17 @@
 const q = (selector, context = document) => context.querySelector(selector);
 const qa = (selector, context = document) => [...context.querySelectorAll(selector)];
 
+// Update visible terminology without changing technical database identifiers.
+const reflectionCopyWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+while (reflectionCopyWalker.nextNode()) {
+  const node = reflectionCopyWalker.currentNode;
+  node.nodeValue = node.nodeValue
+    .replace(/\bReflections\b/g, "Metacognition")
+    .replace(/\bReflection\b/g, "Metacognition")
+    .replace(/\breflections\b/g, "metacognition responses")
+    .replace(/\breflection\b/g, "metacognition");
+}
+
 qa('img[src="assets/images/student-reading.svg"]').forEach((image) => {
   image.src = "assets/images/student-reading.png";
   image.style.transform = "scale(.9)";
@@ -11,10 +22,11 @@ let favicon = q('link[rel="icon"]');
 if (!favicon) {
   favicon = document.createElement("link");
   favicon.rel = "icon";
-  favicon.type = "image/svg+xml";
+  favicon.type = "image/png";
   document.head.append(favicon);
 }
-favicon.href = "assets/icons/logo.svg";
+favicon.type = "image/png";
+favicon.href = "assets/icons/logo.png";
 
 const currentPage = location.pathname.split("/").pop() || "index.html";
 qa(".main-nav a").forEach((link) => {
@@ -22,6 +34,9 @@ qa(".main-nav a").forEach((link) => {
 });
 
 const resourceMenu = q(".nav-dropdown");
+const resourceSummary = resourceMenu?.querySelector("summary");
+if (resourceSummary) resourceSummary.textContent = "How It Works";
+qa('.main-nav a[href="technology.html"]').forEach(link => link.remove());
 if (resourceMenu && q(".nav-dropdown-menu a.active", resourceMenu)) {
   q("summary", resourceMenu).classList.add("active");
 }
@@ -33,8 +48,11 @@ const menu = q(".menu-toggle");
 const nav = q(".main-nav");
 menu?.addEventListener("click", () => nav.classList.toggle("open"));
 
-q(".teacher-link")?.remove();
-q("[data-open-teacher]")?.addEventListener("click", () => q("#teacherModal").classList.add("open"));
+qa(".teacher-link").forEach((button) => {
+  button.textContent = "Sign In";
+  button.removeAttribute("data-open-teacher");
+  button.addEventListener("click", () => window.location.assign("login.html"));
+});
 qa("[data-close-modal]").forEach((button) => {
   button.onclick = () => q("#teacherModal").classList.remove("open");
 });
@@ -65,6 +83,20 @@ function progress(value) {
 qa("[data-progress]").forEach((item) => (item.style.width = `${savedProgress}%`));
 qa("[data-progress-label]").forEach((item) => (item.textContent = `${savedProgress}%`));
 qa("[data-complete]").forEach((button) => (button.onclick = () => progress(20)));
+
+if (["collaborate.html", "culture.html", "technology.html"].includes(currentPage)) {
+  qa("[data-complete]").forEach((button) => {
+    const link = document.createElement("a");
+    link.className = button.className;
+    link.href = "reading-library.html";
+    link.textContent = "Sign in to practice →";
+    button.replaceWith(link);
+  });
+  q("[data-reflect]")?.replaceWith(Object.assign(document.createElement("div"), {
+    className: "public-practice-preview",
+    innerHTML: '<p>Signed-in learners can save private metacognition responses as part of a Reading Journey.</p><a class="btn btn-primary" href="reading-library.html">Sign in to practice →</a>'
+  }));
+}
 
 qa("[data-check-answer]").forEach((button) => {
   button.onclick = () => {
@@ -116,7 +148,7 @@ qa("[data-print]").forEach((button) => (button.onclick = () => print()));
 q("[data-reflect]")?.addEventListener("submit", (event) => {
   event.preventDefault();
   localStorage.setItem("reflection", q("textarea", event.target).value);
-  toast("Reflection saved.");
+  toast("Metacognition response saved.");
 });
 
 if (currentPage === "vocabulary.html") {
@@ -186,7 +218,44 @@ if (currentPage === "reading.html") {
   }
 }
 
+if (currentPage === "family.html") {
+  const familyActivities = [
+    { title: "Story Night", description: "Take turns reading, listening, or retelling in any language." },
+    { title: "Family Interview", description: "Ask about a childhood memory, tradition, journey, or meaningful place." },
+    { title: "Everyday Literacy", description: "Read a recipe, sign, message, direction, menu, or label together." },
+    { title: "Tell a Family Story", description: "Choose a favorite family memory and tell it with a beginning, middle, and end." },
+    { title: "Learn a New Word", description: "Find one useful word, explain its meaning, and use it in a new sentence." },
+    { title: "Ask a “Why” Question", description: "Ask why something happened in a story and discuss possible answers together." }
+  ];
+  const activityCards = q(".section .cards");
+  if (activityCards) {
+    activityCards.classList.add("family-activity-cards");
+    activityCards.innerHTML = familyActivities.map((activity, index) => `<article class="card family-activity-card" data-family-choice="${index}" role="button" tabindex="0" aria-label="Select ${activity.title}"><span class="family-card-number">${index + 1}</span><h3>${activity.title}</h3><p>${activity.description}</p></article>`).join("");
+  }
+  const bingo = qa(".activity").find(item => /Family Reading Bingo/i.test(item.textContent));
+  if (bingo) {
+    bingo.className = "family-wheel-experience";
+    bingo.innerHTML = `<div class="family-wheel-copy"><span class="badge">Today’s family activity</span><h2>Spin the Family Learning Wheel</h2><p>Let the wheel choose one activity, or select any card above that feels right for your family today.</p><div id="familyWheelResult" class="family-wheel-result" role="status" aria-live="polite"><small>Your activity will appear here</small><strong>Ready to spin?</strong></div><button id="spinFamilyWheel" class="btn btn-primary" type="button">Spin the Wheel</button></div><div class="family-wheel-wrap"><span class="family-wheel-pointer" aria-hidden="true"></span><div id="familyWheel" class="family-wheel" aria-label="Six family literacy activities">${familyActivities.map((activity, index) => `<span class="family-wheel-label" style="--n:${index}">${index + 1}</span>`).join("")}<span class="family-wheel-center" aria-hidden="true">★</span></div><ol class="family-wheel-legend">${familyActivities.map((activity, index) => `<li><span>${index + 1}</span>${activity.title}</li>`).join("")}</ol></div>`;
+    const wheel = q("#familyWheel"), result = q("#familyWheelResult"), spinButton = q("#spinFamilyWheel");
+    let turns = 0;
+    const selectActivity = (index, fromWheel = false) => {
+      qa("[data-family-choice]").forEach(card => card.classList.toggle("selected", Number(card.dataset.familyChoice) === index));
+      result.innerHTML = `<small>${fromWheel ? "The wheel chose" : "You chose"}</small><strong>${familyActivities[index].title}</strong><p>${familyActivities[index].description}</p>`;
+    };
+    qa("[data-family-choice]").forEach(card => {card.addEventListener("click", () => selectActivity(Number(card.dataset.familyChoice)));card.addEventListener("keydown", event => {if(event.key === "Enter" || event.key === " "){event.preventDefault();selectActivity(Number(card.dataset.familyChoice));}});});
+    spinButton?.addEventListener("click", () => {
+      spinButton.disabled = true;
+      const selected = Math.floor(Math.random() * familyActivities.length);
+      turns += 5 + Math.floor(Math.random() * 3);
+      wheel.style.transform = `rotate(${turns * 360 + (360 - selected * 60 - 30)}deg)`;
+      setTimeout(() => { selectActivity(selected, true); spinButton.disabled = false; spinButton.textContent = "Spin Again"; }, 1900);
+    });
+  }
+}
+
 if (currentPage === "index.html") {
+  const primaryAction = q('.hero-copy .actions .btn-primary');
+  if (primaryAction) { primaryAction.href = "reading-library.html"; primaryAction.textContent = "Choose Your Reading →"; }
   const homeTitle = q(".hero-copy h1");
   if (homeTitle && !q(".beyond-test", homeTitle.parentElement)) {
     const labelStyles = document.createElement("style");
@@ -412,4 +481,43 @@ if (pageHero) {
   });
 
   pageHero.prepend(starLayer);
+}
+
+const siteFooter = q(".footer");
+if (siteFooter) {
+  siteFooter.classList.add("footer-enhanced");
+
+  const footerGrid = q(".footer-grid", siteFooter);
+  if (footerGrid) {
+    footerGrid.innerHTML = `
+      <div class="footer-about">
+        <a class="footer-brand" href="index.html" aria-label="Interactive Literacy Hub home">
+          <span class="footer-logo"><img src="assets/icons/logo.png" alt=""></span>
+          <span><strong>Interactive</strong><small>Literacy Hub</small></span>
+        </a>
+        <p>A welcoming space where learners read, think, share ideas, and grow with confidence.</p>
+        <span class="footer-purpose">Made for educators, learners, and families.</span>
+      </div>
+      <nav class="footer-links" aria-label="Explore">
+        <h3>Explore</h3>
+        <a href="about.html">About the Hub</a>
+        <a href="reading.html">How It Works</a>
+        <a href="family.html">For Families</a>
+        <a href="privacy.html">Privacy</a>
+      </nav>
+      <nav class="footer-links" aria-label="Account access">
+        <h3>Get Started</h3>
+        <a href="login.html">Sign In</a>
+        <a href="register.html">Create Educator Account</a>
+      </nav>
+    `;
+  }
+
+  const footerBottom = q(".footer-bottom", siteFooter);
+  if (footerBottom) {
+    footerBottom.innerHTML = `
+      <span>Student-first, low-anxiety, culturally responsive literacy practice.</span>
+      <span>&copy; ${new Date().getFullYear()} Interactive Literacy Hub</span>
+    `;
+  }
 }
