@@ -214,6 +214,13 @@
     document.dispatchEvent(new CustomEvent("hub:auth-ready", { detail: window.hubCurrentUser }));
   }
 
+  document.addEventListener("click", event => {
+    const learnerLink = event.target.closest(".learner-detail-link");
+    if (!learnerLink) return;
+    event.preventDefault();
+    window.location.assign(learnerLink.href);
+  });
+
   async function resetAndDownloadCredentials(event) {
     const button = event.currentTarget;
     const originalText = button.textContent;
