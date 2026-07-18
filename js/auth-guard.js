@@ -33,6 +33,17 @@
       root.classList.remove("auth-checking");
       root.classList.add("auth-ready");
       document.dispatchEvent(new CustomEvent("hub:auth-ready", { detail: window.hubCurrentUser }));
+      const recoveryKey = `hub-auth-retry:${window.location.pathname}`;
+      window.setTimeout(() => {
+        if (!document.querySelector("main[hidden]")) {
+          sessionStorage.removeItem(recoveryKey);
+          return;
+        }
+        if (sessionStorage.getItem(recoveryKey) !== "1") {
+          sessionStorage.setItem(recoveryKey, "1");
+          window.location.reload();
+        }
+      }, 7000);
     } catch (error) {
       console.error("Page protection error:", error);
       window.location.replace(`login.html?reason=${navigator.onLine ? "session" : "network"}`);
