@@ -28,21 +28,11 @@ begin
   where id=target_student_id and role='student';
 end $$;
 
-create or replace function public.sync_student_points_from_progress()
-returns trigger
-language plpgsql
-security definer
-set search_path=public
-as $$
-begin
-  perform public.recalculate_student_points(case when tg_op='DELETE' then old.student_id else new.student_id end);
-  return case when tg_op='DELETE' then old else new end;
-end $$;
-
-drop trigger if exists sync_points_after_progress_change on public.student_progress;
-create trigger sync_points_after_progress_change
-after insert or update or delete on public.student_progress
-for each row execute function public.sync_student_points_from_progress();
+update public.activities
+set title='Metacognition',
+    description='Think about learning strategies and confidence.'
+where id='community-garden-reflection'
+   or (reading_id='community-garden' and activity_type='reflection');
 
 do $$
 declare learner record;
