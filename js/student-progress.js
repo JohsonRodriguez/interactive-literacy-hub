@@ -44,4 +44,5 @@
       await renderEducatorForum(studentId,current.reading_id);
     }catch(error){console.error("Learner detail error",error);$("#detailStatus").textContent="You cannot view this learner, or the progress could not be loaded.";$("#detailStatus").className="dashboard-status error";}
   },{once:true});
+  if(window.hubCurrentUser)document.dispatchEvent(new CustomEvent("hub:auth-ready",{detail:window.hubCurrentUser}));
 })();
