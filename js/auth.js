@@ -21,12 +21,12 @@
     return { session, user: session.user, profile };
   }
 
-  const roleDestination = (role) => role === "student" ? "student-dashboard.html" : ["teacher", "admin"].includes(role) ? "teacher-dashboard.html" : null;
+  const roleDestination = (role) => role === "student" ? "student-dashboard/" : ["teacher", "admin"].includes(role) ? "teacher-dashboard/" : null;
 
   async function signOutAndRedirect() {
     try { await window.supabaseClient?.auth.signOut(); }
     catch (error) { console.error("Sign-out error:", error); }
-    window.location.replace("login.html");
+    window.location.replace("login/");
   }
 
   window.hubAuth = { getCurrentUserAndProfile, roleDestination, signOutAndRedirect, friendlyError };
@@ -35,7 +35,7 @@
   if (!form) return;
   const loginLead=document.querySelector(".auth-welcome .lead");if(loginLead)loginLead.textContent="Sign in to keep your practice, points, and reading journeys together.";
   const registrationLink = document.querySelector(".auth-switch");
-  if (registrationLink) registrationLink.innerHTML = '<strong>New here?</strong> <a href="register.html"><strong>Create an educator account</strong></a>';
+  if (registrationLink) registrationLink.innerHTML = '<strong>New here?</strong> <a href="register/"><strong>Create an educator account</strong></a>';
   const identifierInput = form.elements.email;
   const identifierLabel = document.querySelector('label[for="email"]');
   identifierInput.type = "text";
@@ -58,7 +58,7 @@
   });
   recoveryButton.addEventListener("click",()=>{recoveryPanel.hidden=false;recoveryButton.hidden=true;const current=form.email.value.trim();if(current.includes("@"))document.querySelector("#recoveryEmail").value=current;document.querySelector("#recoveryEmail").focus();});
   document.querySelector("#cancelRecoveryButton").addEventListener("click",()=>{recoveryPanel.hidden=true;recoveryButton.hidden=false;});
-  document.querySelector("#sendRecoveryButton").addEventListener("click",async event=>{const email=document.querySelector("#recoveryEmail").value.trim().toLowerCase(),recoveryStatus=document.querySelector("#recoveryStatus");if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){recoveryStatus.textContent="Enter the email used for your educator account.";recoveryStatus.className="auth-message error";return;}event.currentTarget.disabled=true;recoveryStatus.textContent="Sending recovery instructions…";recoveryStatus.className="auth-message loading";try{const redirectTo=new URL("reset-password.html",window.location.href).href;const {error}=await window.supabaseClient.auth.resetPasswordForEmail(email,{redirectTo});if(error)throw error;recoveryStatus.textContent="If an educator account uses that email, recovery instructions have been sent.";recoveryStatus.className="auth-message success";}catch(error){console.error("Password recovery error",error);recoveryStatus.textContent="We could not send the recovery email. Please wait a moment and try again.";recoveryStatus.className="auth-message error";event.currentTarget.disabled=false;}});
+  document.querySelector("#sendRecoveryButton").addEventListener("click",async event=>{const email=document.querySelector("#recoveryEmail").value.trim().toLowerCase(),recoveryStatus=document.querySelector("#recoveryStatus");if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){recoveryStatus.textContent="Enter the email used for your educator account.";recoveryStatus.className="auth-message error";return;}event.currentTarget.disabled=true;recoveryStatus.textContent="Sending recovery instructions…";recoveryStatus.className="auth-message loading";try{const redirectTo=new URL("reset-password/",window.location.href).href;const {error}=await window.supabaseClient.auth.resetPasswordForEmail(email,{redirectTo});if(error)throw error;recoveryStatus.textContent="If an educator account uses that email, recovery instructions have been sent.";recoveryStatus.className="auth-message success";}catch(error){console.error("Password recovery error",error);recoveryStatus.textContent="We could not send the recovery email. Please wait a moment and try again.";recoveryStatus.className="auth-message error";event.currentTarget.disabled=false;}});
 
   if (!window.supabaseClient) {
     status.textContent = "This learning hub still needs its Supabase connection. Ask the site owner for help.";

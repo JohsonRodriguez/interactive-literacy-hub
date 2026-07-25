@@ -28,7 +28,9 @@ if (!favicon) {
 favicon.type = "image/png";
 favicon.href = "assets/icons/logo.png";
 
-const currentPage = location.pathname.split("/").pop() || "index.html";
+const currentPath = location.pathname.replace(/\/+$/, "");
+const currentSlug = currentPath.split("/").pop();
+const currentPage = currentSlug ? `${currentSlug}/` : "./";
 qa(".main-nav a").forEach((link) => {
   if (link.dataset.page === currentPage) link.classList.add("active");
 });
@@ -36,7 +38,7 @@ qa(".main-nav a").forEach((link) => {
 const resourceMenu = q(".nav-dropdown");
 const resourceSummary = resourceMenu?.querySelector("summary");
 if (resourceSummary) resourceSummary.textContent = "How It Works";
-qa('.main-nav a[href="technology.html"]').forEach(link => link.remove());
+qa('.main-nav a[href="technology/"]').forEach(link => link.remove());
 if (resourceMenu && q(".nav-dropdown-menu a.active", resourceMenu)) {
   q("summary", resourceMenu).classList.add("active");
 }
@@ -51,7 +53,7 @@ menu?.addEventListener("click", () => nav.classList.toggle("open"));
 qa(".teacher-link").forEach((button) => {
   button.textContent = "Sign In";
   button.removeAttribute("data-open-teacher");
-  button.addEventListener("click", () => window.location.assign("login.html"));
+  button.addEventListener("click", () => window.location.assign("login/"));
 });
 qa("[data-close-modal]").forEach((button) => {
   button.onclick = () => q("#teacherModal").classList.remove("open");
@@ -84,17 +86,17 @@ qa("[data-progress]").forEach((item) => (item.style.width = `${savedProgress}%`)
 qa("[data-progress-label]").forEach((item) => (item.textContent = `${savedProgress}%`));
 qa("[data-complete]").forEach((button) => (button.onclick = () => progress(20)));
 
-if (["collaborate.html", "culture.html", "technology.html"].includes(currentPage)) {
+if (["collaborate/", "culture/", "technology/"].includes(currentPage)) {
   qa("[data-complete]").forEach((button) => {
     const link = document.createElement("a");
     link.className = button.className;
-    link.href = "reading-library.html";
+    link.href = "reading-library/";
     link.textContent = "Sign in to practice →";
     button.replaceWith(link);
   });
   q("[data-reflect]")?.replaceWith(Object.assign(document.createElement("div"), {
     className: "public-practice-preview",
-    innerHTML: '<p>Signed-in learners can save private metacognition responses as part of a Reading Journey.</p><a class="btn btn-primary" href="reading-library.html">Sign in to practice →</a>'
+    innerHTML: '<p>Signed-in learners can save private metacognition responses as part of a Reading Journey.</p><a class="btn btn-primary" href="reading-library/">Sign in to practice →</a>'
   }));
 }
 
@@ -151,7 +153,7 @@ q("[data-reflect]")?.addEventListener("submit", (event) => {
   toast("Metacognition response saved.");
 });
 
-if (currentPage === "vocabulary.html") {
+if (currentPage === "vocabulary/") {
   const wordLab = q(".word-game")?.closest(".activity");
   if (wordLab) {
     wordLab.closest(".section")?.classList.add("word-challenge-section");
@@ -162,7 +164,7 @@ if (currentPage === "vocabulary.html") {
         write a clear description for each word. Then let your student match every
         word to its correct description.
       </p>
-      <a class="btn btn-primary" href="word-detective.html">Start →</a>
+      <a class="btn btn-primary" href="word-detective/">Start →</a>
     `;
   }
 
@@ -175,12 +177,12 @@ if (currentPage === "vocabulary.html") {
         Write a sentence and highlight the vocabulary word you want to practice.
         Then provide three answer choices and identify the correct meaning.
       </p>
-      <a class="btn btn-primary" href="context-clue.html">Start →</a>
+      <a class="btn btn-primary" href="context-clue/">Start →</a>
     `;
   }
 }
 
-if (currentPage === "reading.html") {
+if (currentPage === "reading/") {
   const mainIdeaLab = q("#m");
   if (mainIdeaLab) {
     mainIdeaLab.innerHTML = `
@@ -189,7 +191,7 @@ if (currentPage === "reading.html") {
         Create three short reading passages. Add three possible main ideas for each
         passage and select the correct answer. Then share the activity with your students.
       </p>
-      <a class="btn btn-primary" href="main-idea.html">Start &rarr;</a>
+      <a class="btn btn-primary" href="main-idea/">Start &rarr;</a>
     `;
   }
 
@@ -201,7 +203,7 @@ if (currentPage === "reading.html") {
         Create three short reading passages. Add three possible inferences for each
         passage and select the conclusion best supported by the text clues.
       </p>
-      <a class="btn btn-primary" href="inference.html">Start &rarr;</a>
+      <a class="btn btn-primary" href="inference/">Start &rarr;</a>
     `;
   }
 
@@ -213,12 +215,12 @@ if (currentPage === "reading.html") {
         Create three short reading passages. Add three possible text details for each
         passage and select the evidence that best supports the stated idea.
       </p>
-      <a class="btn btn-primary" href="text-evidence.html">Start &rarr;</a>
+      <a class="btn btn-primary" href="text-evidence/">Start &rarr;</a>
     `;
   }
 }
 
-if (currentPage === "family.html") {
+if (currentPage === "family/") {
   const familyActivities = [
     { title: "Story Night", description: "Take turns reading, listening, or retelling in any language." },
     { title: "Family Interview", description: "Ask about a childhood memory, tradition, journey, or meaningful place." },
@@ -253,9 +255,9 @@ if (currentPage === "family.html") {
   }
 }
 
-if (currentPage === "index.html") {
+if (currentPage === "./") {
   const primaryAction = q('.hero-copy .actions .btn-primary');
-  if (primaryAction) { primaryAction.href = "reading-library.html"; primaryAction.textContent = "Choose Your Reading →"; }
+  if (primaryAction) { primaryAction.href = "reading-library/"; primaryAction.textContent = "Choose Your Reading →"; }
   const homeTitle = q(".hero-copy h1");
   if (homeTitle && !q(".beyond-test", homeTitle.parentElement)) {
     const labelStyles = document.createElement("style");
@@ -365,7 +367,7 @@ if (currentPage === "index.html") {
   }
 }
 
-if (currentPage === "about.html") {
+if (currentPage === "about/") {
   const aboutArt = q(".page-hero-art");
   const aboutKid = q('img[src="assets/images/about-kid.webp"]', aboutArt);
   if (aboutArt && aboutKid && !q(".about-hero-blob", aboutArt)) {
@@ -491,7 +493,7 @@ if (siteFooter) {
   if (footerGrid) {
     footerGrid.innerHTML = `
       <div class="footer-about">
-        <a class="footer-brand" href="index.html" aria-label="Interactive Literacy Hub home">
+        <a class="footer-brand" href="./" aria-label="Interactive Literacy Hub home">
           <span class="footer-logo"><img src="assets/icons/logo.png" alt=""></span>
           <span><strong>Interactive</strong><small>Literacy Hub</small></span>
         </a>
@@ -500,15 +502,15 @@ if (siteFooter) {
       </div>
       <nav class="footer-links" aria-label="Explore">
         <h3>Explore</h3>
-        <a href="about.html">About the Hub</a>
-        <a href="reading.html">How It Works</a>
-        <a href="family.html">For Families</a>
-        <a href="privacy.html">Privacy</a>
+        <a href="about/">About the Hub</a>
+        <a href="reading/">How It Works</a>
+        <a href="family/">For Families</a>
+        <a href="privacy/">Privacy</a>
       </nav>
       <nav class="footer-links" aria-label="Account access">
         <h3>Get Started</h3>
-        <a href="login.html">Sign In</a>
-        <a href="register.html">Create Educator Account</a>
+        <a href="login/">Sign In</a>
+        <a href="register/">Create Educator Account</a>
       </nav>
     `;
   }
