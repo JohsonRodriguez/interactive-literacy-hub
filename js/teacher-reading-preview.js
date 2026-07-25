@@ -2,7 +2,7 @@
   "use strict";
   const params = new URLSearchParams(location.search);
   const reading = window.hubReadings?.[params.get("reading") || ""];
-  if (!reading) { location.replace("teacher-reading-library.html"); return; }
+  if (!reading) { location.replace("teacher-reading-library/"); return; }
   const $ = selector => document.querySelector(selector);
   const safe = value => { const node = document.createElement("span"); node.textContent = value ?? ""; return node.innerHTML; };
   let activeStage;
@@ -25,7 +25,7 @@
 
   async function showStage(stage) {
     activeStage = stage;
-    history.replaceState(null, "", `teacher-reading-preview.html?reading=${encodeURIComponent(reading.id)}&stage=${encodeURIComponent(stage.slug)}`);
+    history.replaceState(null, "", `teacher-reading-preview/?reading=${encodeURIComponent(reading.id)}&stage=${encodeURIComponent(stage.slug)}`);
     $("#previewStagePanel").innerHTML = '<p class="auth-message loading">Loading this stage…</p>';
     renderNav();
     try {

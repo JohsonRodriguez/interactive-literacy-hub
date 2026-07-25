@@ -25,7 +25,7 @@
       const { error: syncError } = await window.supabaseClient.rpc("sync_my_public_profile");
       if (syncError) throw syncError;
       status.textContent = "Educator account created! Opening your dashboard…"; status.className = "auth-message success";
-      window.location.replace("teacher-dashboard.html");
+      window.location.replace("teacher-dashboard/");
     } catch (error) {
       console.error("Educator registration error:", error);
       const message = String(error?.message || "").toLowerCase();
