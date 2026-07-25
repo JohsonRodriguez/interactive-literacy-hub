@@ -14,6 +14,39 @@
   $("#schoolYear")?.remove();
 
   const pdfSafe = value => String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\x20-\x7E]/g, "").replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+  const learnerNameCell = (studentId, displayName) => `<div class="editable-learner-name"><a class="learner-detail-link" href="student-progress/?student=${encodeURIComponent(studentId)}">${safe(displayName)}</a><button class="pencil-edit learner-name-edit" type="button" aria-label="Edit learner name" title="Edit learner name">✎</button></div><form class="edit-learner-name-form" data-student-id="${safe(studentId)}" hidden><label><span class="sr-only">Learner name</span><input name="studentName" maxlength="60" value="${safe(displayName)}" required></label><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary cancel-learner-name-edit" type="button">Cancel</button><p class="auth-message" role="status" aria-live="polite"></p></form>`;
+  function bindLearnerNameEditors(root=document) {
+    root.querySelectorAll(".learner-name-edit:not([data-edit-ready])").forEach(button=>{
+      button.dataset.editReady="true";
+      button.addEventListener("click",()=>{
+        const cell=button.closest("td"),form=cell.querySelector(".edit-learner-name-form");
+        cell.querySelector(".editable-learner-name").hidden=true;
+        form.hidden=false;form.elements.studentName.focus();form.elements.studentName.select();
+      });
+    });
+    root.querySelectorAll(".cancel-learner-name-edit:not([data-edit-ready])").forEach(button=>{
+      button.dataset.editReady="true";
+      button.addEventListener("click",()=>{
+        const form=button.closest(".edit-learner-name-form");
+        form.hidden=true;form.closest("td").querySelector(".editable-learner-name").hidden=false;
+      });
+    });
+    root.querySelectorAll(".edit-learner-name-form:not([data-edit-ready])").forEach(form=>{
+      form.dataset.editReady="true";
+      form.addEventListener("submit",async event=>{
+        event.preventDefault();
+        const value=form.elements.studentName.value.trim(),message=form.querySelector(".auth-message"),save=form.querySelector('[type="submit"]');
+        if(value.length<2){message.textContent="Enter at least 2 characters.";message.className="auth-message error";return;}
+        save.disabled=true;message.textContent="Saving…";message.className="auth-message loading";
+        const {data,error}=await window.supabaseClient.rpc("educator_rename_student",{target_student_id:form.dataset.studentId,new_student_name:value});
+        if(error){console.error("Edit learner name error",error);message.textContent="We could not update the learner name.";message.className="auth-message error";save.disabled=false;return;}
+        const cell=form.closest("td");
+        cell.querySelector(".learner-detail-link").textContent=data||value;
+        message.textContent="Name updated.";message.className="auth-message success";
+        setTimeout(()=>{form.hidden=true;cell.querySelector(".editable-learner-name").hidden=false;save.disabled=false;},700);
+      });
+    });
+  }
   function downloadCredentialsPdf({ displayName, username, loginCode, groupName }) {
     const lines = ["Interactive Literacy Hub", "Learner Sign-In Card", `Learner: ${displayName}`, `Learning group: ${groupName}`, `Username: ${username}`, `Login code: ${loginCode}`, "Sign in at the Interactive Literacy Hub login page.", "Keep this card private and give it only to the learner or caregiver."];
     const stream = lines.map((line, index) => `BT /F1 ${index < 2 ? 17 : 11} Tf 0.07 0.14 0.37 rg 54 ${750 - index * 48} Td (${pdfSafe(line)}) Tj ET`).join("\n");
@@ -63,8 +96,9 @@
         card.classList.remove("is-open");
       });
     }
-    const learnerLabel = learnerId ? `<a class="learner-detail-link" href="student-progress/?student=${encodeURIComponent(learnerId)}">${safe(displayName)}</a>` : safe(displayName);
+    const learnerLabel = learnerId ? learnerNameCell(learnerId, displayName) : safe(displayName);
     body.insertAdjacentHTML("beforeend", `<tr><td>${learnerLabel}</td><td>Choose a reading<small class="table-subtext">Not started</small></td><td><span class="teacher-progress">0%</span></td><td>Just started</td><td>Credentials available above</td></tr>`);
+    bindLearnerNameEditors(body.lastElementChild);
   }
 
   async function createLearner(event) {
@@ -163,7 +197,7 @@
           const latest = [...done].sort((a, b) => new Date(b.completed_at || b.updated_at) - new Date(a.completed_at || a.updated_at))[0];
           const percent = activeTotal ? Math.round(done.length / activeTotal * 100) : 0;
           const journey=journeysByStudent.get(student.id);const journeyRecords=records.filter(record=>record.activities?.reading_id===journey?.reading_id&&record.activities?.is_active&&record.activities?.is_required);const journeyDone=journeyRecords.filter(record=>record.status==="completed").length;const journeyPercent=journey?Math.round(journeyDone/9*100):0;const currentStage=journeyRecords.find(record=>record.activity_id===journey?.current_activity_id)?.activities?.title||"Not started";
-          return `<tr><td><a class="learner-detail-link" href="student-progress/?student=${encodeURIComponent(student.id)}">${safe(student.display_name || student.username || "Student")}</a></td><td>${safe(journey?.readings?.title||"Choose a reading")}<small class="table-subtext">${safe(currentStage)}</small></td><td><span class="teacher-progress">${journeyPercent}%</span></td><td>${safe(latest?.activities?.title || "Just started")}</td><td><button class="credential-pdf-button" type="button" data-learner-id="${safe(student.id)}" data-class-id="${safe(item.id)}" data-group-name="${safe(item.class_name)}">Download PDF</button></td></tr>`;
+          return `<tr><td>${learnerNameCell(student.id, student.display_name || student.username || "Student")}</td><td>${safe(journey?.readings?.title||"Choose a reading")}<small class="table-subtext">${safe(currentStage)}</small></td><td><span class="teacher-progress">${journeyPercent}%</span></td><td>${safe(latest?.activities?.title || "Just started")}</td><td><button class="credential-pdf-button" type="button" data-learner-id="${safe(student.id)}" data-class-id="${safe(item.id)}" data-group-name="${safe(item.class_name)}">Download PDF</button></td></tr>`;
         }).join("");
         const panelId=`class-students-${item.id}`;
         return `<article class="dashboard-card class-card group-summary-card"><div class="group-card-summary"><div class="group-card-copy"><span class="badge">Group code: ${safe(item.class_code)}</span><div class="editable-group-text"><strong class="group-card-title">${safe(item.class_name)}</strong><button class="pencil-edit" type="button" data-edit-field="name" aria-label="Edit group name" title="Edit group name">✎</button></div><div class="editable-group-text"><span class="group-card-organization">${safe(item.school_name || "Organization or setting not added")}</span><button class="pencil-edit" type="button" data-edit-field="organization" aria-label="Edit organization or setting" title="Edit organization or setting">✎</button></div></div><div class="group-card-meta"><strong>${students.length}</strong><span>${students.length===1?"learner":"learners"}</span><button class="group-card-toggle" type="button" aria-expanded="false" aria-controls="${safe(panelId)}">View learners →</button></div></div><form class="edit-group-form" data-class-id="${safe(item.id)}" data-editing-field="name" hidden><label>Group name<input name="fieldValue" maxlength="80" value="${safe(item.class_name)}" required></label><div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary cancel-group-edit" type="button">Cancel</button></div><p class="auth-message" role="status" aria-live="polite"></p></form><form class="edit-group-form" data-class-id="${safe(item.id)}" data-editing-field="organization" hidden><label>Organization or setting<input name="fieldValue" maxlength="100" value="${safe(item.school_name || "")}" placeholder="School, tutoring practice, or homeschool"></label><div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary cancel-group-edit" type="button">Cancel</button></div><p class="auth-message" role="status" aria-live="polite"></p></form><div id="${safe(panelId)}" class="class-students-panel" hidden>${rows ? `<div class="class-students-heading"><h3>${safe(item.class_name)} learners</h3><button class="close-group-panel" type="button" data-close-panel="${safe(panelId)}">Close</button></div><div class="table-wrap"><table><thead><tr><th>Learner</th><th>Current Reading / Stage</th><th>Journey Progress</th><th>Latest completed activity</th><th>Credentials</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="empty-state">No learners have joined this group yet.</p>'}</div></article>`;
@@ -200,6 +234,7 @@
       document.querySelectorAll(".cancel-group-edit").forEach(button=>button.addEventListener("click",()=>{
         button.closest(".edit-group-form").hidden=true;
       }));
+      bindLearnerNameEditors();
       document.querySelectorAll(".edit-group-form").forEach(form=>form.addEventListener("submit",async event=>{
         event.preventDefault();const value=form.elements.fieldValue.value.trim(),field=form.dataset.editingField,message=form.querySelector(".auth-message"),save=form.querySelector('[type="submit"]');
         if(field==="name"&&value.length<2){message.textContent="Enter at least 2 characters.";message.className="auth-message error";return;}

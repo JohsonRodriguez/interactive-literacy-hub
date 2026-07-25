@@ -141,7 +141,14 @@ with src as (
  from public.readings r where r.reading_order between 2 and 10
 ), rows as (
  select id||'-read-text' activity_id,jsonb_build_object('text',reading_text) content,'[]'::jsonb answers from src union all
- select id||'-before-reading',jsonb_build_object('prompt','What does the cover suggest this reading will be mostly about?','options',jsonb_build_array('People facing an important experience together.','A list of unrelated numbers.','Instructions for repairing a car.')),'[0]' from src union all
+ select id||'-before-reading',jsonb_build_object(
+   'prompt','What does the cover suggest this reading will be mostly about?',
+   'options',case mod(reading_order,3)
+     when 1 then jsonb_build_array('A list of unrelated numbers.',case when id='neighborhood-book-drive' then 'Even small efforts can become something truly important' else 'People facing an important experience together.' end,'Instructions for repairing a car.')
+     when 2 then jsonb_build_array('A list of unrelated numbers.','Instructions for repairing a car.',case when id='neighborhood-book-drive' then 'Even small efforts can become something truly important' else 'People facing an important experience together.' end)
+     else jsonb_build_array(case when id='neighborhood-book-drive' then 'Even small efforts can become something truly important' else 'People facing an important experience together.' end,'A list of unrelated numbers.','Instructions for repairing a car.')
+   end
+ ),jsonb_build_array(mod(reading_order,3)) from src union all
  select id||'-vocabulary',jsonb_build_object(
    'prompt','Match each word from the reading with its meaning.',
    'words',words,
