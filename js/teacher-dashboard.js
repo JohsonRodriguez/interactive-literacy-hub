@@ -2,6 +2,14 @@
   "use strict";
   const $ = selector => document.querySelector(selector);
   const safe = value => { const node = document.createElement("span"); node.textContent = value ?? ""; return node.innerHTML; };
+  const headerLogout = document.querySelector(".dashboard-header [data-logout]");
+  if (headerLogout && !document.querySelector(".dashboard-menu")) {
+    const menu = document.createElement("nav");
+    menu.className = "dashboard-menu";
+    menu.setAttribute("aria-label", "Educator menu");
+    menu.innerHTML = '<a class="active" href="teacher-dashboard.html">Dashboard</a><a href="teacher-reading-library.html">ReadView</a>';
+    headerLogout.before(menu);
+  }
   $("label[for='schoolYear']")?.remove();
   $("#schoolYear")?.remove();
 
@@ -135,13 +143,13 @@
       if (activitiesResult.error) throw activitiesResult.error;
       const members = membersResult.data || [];
       const studentIds = [...new Set(members.map(item => item.student_id))];
-      const profilesResult = studentIds.length
-        ? await window.supabaseClient.from("profiles").select("id,display_name,username,avatar,student_progress(activity_id,status,score,completed_at,updated_at,confidence_level,activities(title,reading_id,skill,is_active,is_required))").in("id", studentIds)
-        : { data: [], error: null };
+      const [profilesResult, journeysResult] = studentIds.length ? await Promise.all([
+        window.supabaseClient.from("profiles").select("id,display_name,username,avatar,student_progress(activity_id,status,score,completed_at,updated_at,confidence_level,activities(title,reading_id,skill,is_active,is_required))").in("id", studentIds),
+        window.supabaseClient.from("student_readings").select("student_id,reading_id,status,current_activity_id,updated_at,readings(title)").in("student_id",studentIds).order("updated_at",{ascending:false})
+      ]) : [{ data: [], error: null }, { data: [], error: null }];
       if (profilesResult.error) throw profilesResult.error;
-      const profilesById = new Map((profilesResult.data || []).map(student => [student.id, student]));
-      const journeysResult = studentIds.length ? await window.supabaseClient.from("student_readings").select("student_id,reading_id,status,current_activity_id,updated_at,readings(title)").in("student_id",studentIds).order("updated_at",{ascending:false}) : {data:[],error:null};
       if(journeysResult.error) throw journeysResult.error;
+      const profilesById = new Map((profilesResult.data || []).map(student => [student.id, student]));
       const journeysByStudent=new Map();(journeysResult.data||[]).forEach(item=>{if(!journeysByStudent.has(item.student_id))journeysByStudent.set(item.student_id,item);});
       const activeTotal = activitiesResult.count || 0;
       const studentTotal = studentIds.length;

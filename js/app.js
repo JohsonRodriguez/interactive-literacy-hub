@@ -13,7 +13,7 @@ while (reflectionCopyWalker.nextNode()) {
 }
 
 qa('img[src="assets/images/student-reading.svg"]').forEach((image) => {
-  image.src = "assets/images/student-reading.png";
+  image.src = "assets/images/student-reading.webp";
   image.style.transform = "scale(.9)";
   image.style.transformOrigin = "bottom center";
 });
@@ -367,7 +367,7 @@ if (currentPage === "index.html") {
 
 if (currentPage === "about.html") {
   const aboutArt = q(".page-hero-art");
-  const aboutKid = q('img[src="assets/images/about-kid.png"]', aboutArt);
+  const aboutKid = q('img[src="assets/images/about-kid.webp"]', aboutArt);
   if (aboutArt && aboutKid && !q(".about-hero-blob", aboutArt)) {
     const aboutStyles = document.createElement("style");
     aboutStyles.textContent = `
