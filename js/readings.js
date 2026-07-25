@@ -20,12 +20,16 @@
     ["collaboration-forum","Collaboration Forum","forum"]
   ];
   const placeholderImages = ["before-image1.webp","student-reading.webp","culture-kids.webp","collaborate-kids.webp"];
+  const communityGardenVocabularyImages = [
+    "harvest.webp","inferred.webp","contributed.webp","traditions.webp","herbs.webp",
+    "soil.webp","curious.webp","protected.webp","hurried.webp","carefully.webp"
+  ].map(file => `assets/images/vocabulary/text1/${file}`);
   window.hubReadings = Object.fromEntries(catalog.map(([id,title,theme,description,cover,minutes],readingIndex) => [id, {
     id,title,theme,description,minutes,difficulty:"Friendly grade 4",image:`assets/images/covers/${cover.replace(/\.png$/, ".webp")}`,
     stages: stageTemplates.map(([slug,stageTitle,type],stageIndex) => ({
       slug,title:stageTitle,type,id:`${id}-${slug}`,
       image: slug === "before-reading" ? `assets/images/${placeholderImages[readingIndex % placeholderImages.length]}` : undefined,
-      images: type === "match" ? Array.from({length:10},(_,i)=>`assets/images/covers/cover${((readingIndex+i)%10)+1}.webp`) : undefined,
+      images: type === "match" ? (id === "community-garden" ? communityGardenVocabularyImages : Array.from({length:10},(_,i)=>`assets/images/covers/cover${((readingIndex+i)%10)+1}.webp`)) : undefined,
       content: type === "forum" ? {} : undefined
     }))
   }]));
