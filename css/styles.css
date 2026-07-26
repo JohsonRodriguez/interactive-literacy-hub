@@ -80,6 +80,10 @@
 .learner-credentials .credential-actions { display: flex; justify-content: flex-start; flex-wrap: wrap; gap: 12px; padding: 12px 0 0; background: transparent; }
 .credential-pdf-button { min-height: 38px; border: 0; border-radius: 10px; padding: 7px 11px; background: var(--navy); color: #fff; font: inherit; font-size: .86rem; font-weight: 900; cursor: pointer; white-space: nowrap; }
 .credential-pdf-button:disabled { opacity: .65; cursor: wait; }
+.learner-row-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.remove-learner-button { min-height:38px; border:1px solid #b4233c; border-radius:10px; padding:7px 11px; background:#fff; color:#9f1833; font:inherit; font-size:.86rem; font-weight:900; cursor:pointer; white-space:nowrap; }
+.remove-learner-button:hover,.remove-learner-button:focus-visible { background:#fff0f3; outline:2px solid #9f1833; }
+.remove-learner-button:disabled { opacity:.65; cursor:wait; }
 .table-subtext { display:block; margin-top:4px; color:#68738a; }
 .learner-detail-link { color:#176f6a; font-weight:900; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:3px; }
 .learner-detail-link:hover { color:var(--navy); }
@@ -405,6 +409,19 @@
 .journey-stage-table td small { color:#68738a; text-transform:capitalize; }
 .journey-stage-table tr.stage-status-completed td { background:#f5fbef; }
 .journey-stage-table tr.stage-status-started td { background:#eef8ff; }
+.answer-review-card .section-head { align-items:center; }
+.answer-review-stage { margin-top:22px; }
+.answer-review-stage h3 { margin:0 0 12px; color:var(--navy); font-family:'Baloo 2'; font-size:1.35rem; }
+.answer-attempt-list { display:grid; gap:12px; }
+.answer-attempt { padding:16px; border:2px solid #dfe7eb; border-radius:16px; background:#fff; }
+.answer-attempt.is-correct { border-color:#9bcb75; background:#f5fbef; }
+.answer-attempt.is-incorrect { border-color:#ef9aaa; background:#fff7f8; }
+.answer-attempt header { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; }
+.answer-attempt header span { flex:0 0 auto; font-size:.82rem; font-weight:900; color:#68738a; }
+.answer-attempt p { display:grid; gap:3px; margin:12px 0 0; }
+.answer-attempt small { color:#68738a; font-weight:900; text-transform:uppercase; letter-spacing:.04em; }
+.answer-attempt .correct-answer { color:#315e16; }
+.answer-attempt time { display:block; margin-top:10px; color:#68738a; font-size:.8rem; }
 .stage-status-pill { display:inline-block; padding:5px 9px; border-radius:999px; background:#edf1f6; color:#68738a; font-size:.78rem; font-weight:900; text-transform:capitalize; white-space:nowrap; }
 .stage-status-completed .stage-status-pill { background:#dff3cf; color:#315e16; }
 .stage-status-started .stage-status-pill { background:#dceeff; color:#225b88; }

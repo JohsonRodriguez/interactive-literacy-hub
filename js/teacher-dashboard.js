@@ -47,6 +47,36 @@
       });
     });
   }
+  function bindRemoveLearnerButtons(root=document) {
+    root.querySelectorAll(".remove-learner-button:not([data-remove-ready])").forEach(button=>{
+      button.dataset.removeReady="true";
+      button.addEventListener("click",async()=>{
+        const row=button.closest("tr"),card=button.closest(".group-summary-card");
+        const learnerName=row.querySelector(".learner-detail-link")?.textContent?.trim()||"this learner";
+        if(!window.confirm(`Remove ${learnerName} from this learning group? Their account and progress will not be deleted.`))return;
+        const originalText=button.textContent;
+        button.disabled=true;button.textContent="Removing…";
+        const {error}=await window.supabaseClient.rpc("educator_remove_student_from_group",{
+          target_class_id:button.dataset.classId,
+          target_student_id:button.dataset.learnerId
+        });
+        if(error){console.error("Remove learner error",error);button.disabled=false;button.textContent=originalText;window.alert("We could not remove this learner from the group.");return;}
+        const sameLearnerButtons=document.querySelectorAll(`.remove-learner-button[data-learner-id="${CSS.escape(button.dataset.learnerId)}"]`);
+        const count=card.querySelector(".group-card-meta strong"),label=card.querySelector(".group-card-meta span");
+        const nextCount=Math.max(0,(Number(count?.textContent)||0)-1);
+        if(count)count.textContent=String(nextCount);
+        if(label)label.textContent=nextCount===1?"learner":"learners";
+        if(sameLearnerButtons.length===1){
+          const total=$("#studentCount");
+          if(total)total.textContent=String(Math.max(0,(Number(total.textContent)||0)-1));
+        }
+        const body=row.parentElement;
+        row.remove();
+        if(!body.children.length)body.closest(".table-wrap").outerHTML='<p class="empty-state">No learners have joined this group yet.</p>';
+      });
+    });
+  }
+  const learnerActions = (learnerId,classId,groupName,credentialsAvailable=true) => `<div class="learner-row-actions">${credentialsAvailable?`<button class="credential-pdf-button" type="button" data-learner-id="${safe(learnerId)}" data-class-id="${safe(classId)}" data-group-name="${safe(groupName)}">Download PDF</button>`:'<span class="table-subtext">Credentials available above</span>'}<button class="remove-learner-button" type="button" data-learner-id="${safe(learnerId)}" data-class-id="${safe(classId)}">Remove from group</button></div>`;
   function downloadCredentialsPdf({ displayName, username, loginCode, groupName }) {
     const lines = ["Interactive Literacy Hub", "Learner Sign-In Card", `Learner: ${displayName}`, `Learning group: ${groupName}`, `Username: ${username}`, `Login code: ${loginCode}`, "Sign in at the Interactive Literacy Hub login page.", "Keep this card private and give it only to the learner or caregiver."];
     const stream = lines.map((line, index) => `BT /F1 ${index < 2 ? 17 : 11} Tf 0.07 0.14 0.37 rg 54 ${750 - index * 48} Td (${pdfSafe(line)}) Tj ET`).join("\n");
@@ -86,7 +116,7 @@
     let body = panel.querySelector("tbody");
     if (!body) {
       const groupName = card.querySelector(".group-card-title")?.textContent || "Learning group";
-      panel.innerHTML = `<div class="class-students-heading"><h3>${safe(groupName)} learners</h3><button class="close-group-panel" type="button" data-close-panel="${safe(panel.id)}">Close</button></div><div class="table-wrap"><table><thead><tr><th>Learner</th><th>Current Reading / Stage</th><th>Journey Progress</th><th>Latest completed activity</th><th>Credentials</th></tr></thead><tbody></tbody></table></div>`;
+      panel.innerHTML = `<div class="class-students-heading"><h3>${safe(groupName)} learners</h3><button class="close-group-panel" type="button" data-close-panel="${safe(panel.id)}">Close</button></div><div class="table-wrap"><table><thead><tr><th>Learner</th><th>Current Reading / Stage</th><th>Journey Progress</th><th>Latest completed activity</th><th>Actions</th></tr></thead><tbody></tbody></table></div>`;
       body = panel.querySelector("tbody");
       panel.querySelector("[data-close-panel]")?.addEventListener("click", () => {
         panel.hidden = true;
@@ -97,8 +127,10 @@
       });
     }
     const learnerLabel = learnerId ? learnerNameCell(learnerId, displayName) : safe(displayName);
-    body.insertAdjacentHTML("beforeend", `<tr><td>${learnerLabel}</td><td>Choose a reading<small class="table-subtext">Not started</small></td><td><span class="teacher-progress">0%</span></td><td>Just started</td><td>Credentials available above</td></tr>`);
+    const groupName=card.querySelector(".group-card-title")?.textContent||"Learning group";
+    body.insertAdjacentHTML("beforeend", `<tr><td>${learnerLabel}</td><td>Choose a reading<small class="table-subtext">Not started</small></td><td><span class="teacher-progress">0%</span></td><td>Just started</td><td>${learnerActions(learnerId,classId,groupName,false)}</td></tr>`);
     bindLearnerNameEditors(body.lastElementChild);
+    bindRemoveLearnerButtons(body.lastElementChild);
   }
 
   async function createLearner(event) {
@@ -197,15 +229,16 @@
           const latest = [...done].sort((a, b) => new Date(b.completed_at || b.updated_at) - new Date(a.completed_at || a.updated_at))[0];
           const percent = activeTotal ? Math.round(done.length / activeTotal * 100) : 0;
           const journey=journeysByStudent.get(student.id);const journeyRecords=records.filter(record=>record.activities?.reading_id===journey?.reading_id&&record.activities?.is_active&&record.activities?.is_required);const journeyDone=journeyRecords.filter(record=>record.status==="completed").length;const journeyPercent=journey?Math.round(journeyDone/9*100):0;const currentStage=journeyRecords.find(record=>record.activity_id===journey?.current_activity_id)?.activities?.title||"Not started";
-          return `<tr><td>${learnerNameCell(student.id, student.display_name || student.username || "Student")}</td><td>${safe(journey?.readings?.title||"Choose a reading")}<small class="table-subtext">${safe(currentStage)}</small></td><td><span class="teacher-progress">${journeyPercent}%</span></td><td>${safe(latest?.activities?.title || "Just started")}</td><td><button class="credential-pdf-button" type="button" data-learner-id="${safe(student.id)}" data-class-id="${safe(item.id)}" data-group-name="${safe(item.class_name)}">Download PDF</button></td></tr>`;
+          return `<tr><td>${learnerNameCell(student.id, student.display_name || student.username || "Student")}</td><td>${safe(journey?.readings?.title||"Choose a reading")}<small class="table-subtext">${safe(currentStage)}</small></td><td><span class="teacher-progress">${journeyPercent}%</span></td><td>${safe(latest?.activities?.title || "Just started")}</td><td>${learnerActions(student.id,item.id,item.class_name)}</td></tr>`;
         }).join("");
         const panelId=`class-students-${item.id}`;
-        return `<article class="dashboard-card class-card group-summary-card"><div class="group-card-summary"><div class="group-card-copy"><span class="badge">Group code: ${safe(item.class_code)}</span><div class="editable-group-text"><strong class="group-card-title">${safe(item.class_name)}</strong><button class="pencil-edit" type="button" data-edit-field="name" aria-label="Edit group name" title="Edit group name">✎</button></div><div class="editable-group-text"><span class="group-card-organization">${safe(item.school_name || "Organization or setting not added")}</span><button class="pencil-edit" type="button" data-edit-field="organization" aria-label="Edit organization or setting" title="Edit organization or setting">✎</button></div></div><div class="group-card-meta"><strong>${students.length}</strong><span>${students.length===1?"learner":"learners"}</span><button class="group-card-toggle" type="button" aria-expanded="false" aria-controls="${safe(panelId)}">View learners →</button></div></div><form class="edit-group-form" data-class-id="${safe(item.id)}" data-editing-field="name" hidden><label>Group name<input name="fieldValue" maxlength="80" value="${safe(item.class_name)}" required></label><div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary cancel-group-edit" type="button">Cancel</button></div><p class="auth-message" role="status" aria-live="polite"></p></form><form class="edit-group-form" data-class-id="${safe(item.id)}" data-editing-field="organization" hidden><label>Organization or setting<input name="fieldValue" maxlength="100" value="${safe(item.school_name || "")}" placeholder="School, tutoring practice, or homeschool"></label><div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary cancel-group-edit" type="button">Cancel</button></div><p class="auth-message" role="status" aria-live="polite"></p></form><div id="${safe(panelId)}" class="class-students-panel" hidden>${rows ? `<div class="class-students-heading"><h3>${safe(item.class_name)} learners</h3><button class="close-group-panel" type="button" data-close-panel="${safe(panelId)}">Close</button></div><div class="table-wrap"><table><thead><tr><th>Learner</th><th>Current Reading / Stage</th><th>Journey Progress</th><th>Latest completed activity</th><th>Credentials</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="empty-state">No learners have joined this group yet.</p>'}</div></article>`;
+        return `<article class="dashboard-card class-card group-summary-card"><div class="group-card-summary"><div class="group-card-copy"><span class="badge">Group code: ${safe(item.class_code)}</span><div class="editable-group-text"><strong class="group-card-title">${safe(item.class_name)}</strong><button class="pencil-edit" type="button" data-edit-field="name" aria-label="Edit group name" title="Edit group name">✎</button></div><div class="editable-group-text"><span class="group-card-organization">${safe(item.school_name || "Organization or setting not added")}</span><button class="pencil-edit" type="button" data-edit-field="organization" aria-label="Edit organization or setting" title="Edit organization or setting">✎</button></div></div><div class="group-card-meta"><strong>${students.length}</strong><span>${students.length===1?"learner":"learners"}</span><button class="group-card-toggle" type="button" aria-expanded="false" aria-controls="${safe(panelId)}">View learners →</button></div></div><form class="edit-group-form" data-class-id="${safe(item.id)}" data-editing-field="name" hidden><label>Group name<input name="fieldValue" maxlength="80" value="${safe(item.class_name)}" required></label><div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary cancel-group-edit" type="button">Cancel</button></div><p class="auth-message" role="status" aria-live="polite"></p></form><form class="edit-group-form" data-class-id="${safe(item.id)}" data-editing-field="organization" hidden><label>Organization or setting<input name="fieldValue" maxlength="100" value="${safe(item.school_name || "")}" placeholder="School, tutoring practice, or homeschool"></label><div><button class="btn btn-primary" type="submit">Save</button><button class="btn btn-secondary cancel-group-edit" type="button">Cancel</button></div><p class="auth-message" role="status" aria-live="polite"></p></form><div id="${safe(panelId)}" class="class-students-panel" hidden>${rows ? `<div class="class-students-heading"><h3>${safe(item.class_name)} learners</h3><button class="close-group-panel" type="button" data-close-panel="${safe(panelId)}">Close</button></div><div class="table-wrap"><table><thead><tr><th>Learner</th><th>Current Reading / Stage</th><th>Journey Progress</th><th>Latest completed activity</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<p class="empty-state">No learners have joined this group yet.</p>'}</div></article>`;
       }).join("") || '<article class="dashboard-card empty-state"><h2>No active classes yet</h2><p>Your classes will appear here after they are created in Supabase.</p></article>';
       renderLearnerCreator(allClasses);
       status.textContent = allClasses.length ? "Learning group information is up to date." : "Create your first learning group above.";
       status.className = "dashboard-status success";
       document.querySelectorAll(".credential-pdf-button").forEach(button => button.addEventListener("click", resetAndDownloadCredentials));
+      bindRemoveLearnerButtons();
       document.querySelectorAll(".group-card-toggle").forEach(button=>button.addEventListener("click",()=>{
         const panel=document.getElementById(button.getAttribute("aria-controls"));
         const opening=button.getAttribute("aria-expanded")!=="true";
